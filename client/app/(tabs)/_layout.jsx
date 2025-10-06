@@ -37,7 +37,12 @@ const Layout = () => {
         name="index"
         options={{ title: "Home", headerShown: false, tabBarIcon:({color,focused,size})=>{
            return( focused ?
-            <Octicons name="home-fill" size={size} color={color} />:
+            <View style={{position:'relative'}}>
+      
+
+            
+            <Octicons name="home-fill" size={size} color={color} />
+            </View>:
             <Octicons name="home" size={size} color={color} />
           )}}}
       />

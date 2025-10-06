@@ -9,7 +9,11 @@ export default function RootLayout() {
     "Fredoka-Light":require('../assets/fonts/Fredoka-Light.ttf'),
     "Fredoka-Medium":require('../assets/fonts/Fredoka-Medium.ttf'),
     "Fredoka-Semibold":require('../assets/fonts/Fredoka-SemiBold.ttf'),
-    "Fredoka-Bold":require('../assets/fonts/Fredoka-Bold.ttf')
+    "Fredoka-Bold":require('../assets/fonts/Fredoka-Bold.ttf'),
+    "JosefinSlab-Bold":require('../assets/fonts/JosefinSlab-Bold.ttf'),
+    "JosefinSlab-Medium":require('../assets/fonts/JosefinSlab-Medium.ttf'),
+    "JosefinSlab-Regular":require('../assets/fonts/JosefinSlab-Regular.ttf'),
+    "JosefinSlab-SemiBold":require('../assets/fonts/JosefinSlab-SemiBold.ttf')
   })
 
   useEffect(()=>{
@@ -29,6 +33,7 @@ export default function RootLayout() {
     <Stack.Screen name="(tabs)" options={{headerShown:false}} />
     <Stack.Screen name="authPages/Login" options={{headerShown:false}} />
     <Stack.Screen name="authPages/CreateAccount" options={{headerShown:false}} />
+    <Stack.Screen name="authPages/OnboardingAuth" options={{headerShown:false}} />
     </Stack>
     </SafeAreaView>
     </SafeAreaProvider>

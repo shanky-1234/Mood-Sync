@@ -7,3 +7,11 @@ export const Colors = {
     },
     error:'#B91C1C'
 }
+
+export const Typography ={
+    h1:{
+        fontFamily:"Fredoka-Bold",
+        fontSize:28,
+        color:'#DE4742'
+    }
+}

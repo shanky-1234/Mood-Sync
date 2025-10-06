@@ -1,6 +1,6 @@
 import { Image, Platform, StyleSheet, Text, View } from "react-native";
 import { Colors } from "../Constants/styleVariable";
-import { globalStyle } from "../globalStyles";
+import { globalStyle } from "../Constants/globalStyles";
 import { Button, TextInput } from "react-native-paper";
 import { Link } from "expo-router";
 import { KeyboardAvoidingView } from "react-native";
