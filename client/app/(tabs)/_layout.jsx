@@ -3,6 +3,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
+<<<<<<< HEAD
 import { Tabs, useRouter } from "expo-router";
 import { Modal, StyleSheet, TouchableOpacity, View,Animated,Easing } from "react-native";
 import { Colors } from '../Constants/styleVariable';
@@ -68,6 +69,14 @@ const Layout = () => {
   return (
     <>
     
+=======
+import { Tabs } from "expo-router";
+import { StyleSheet, View } from "react-native";
+import { Colors } from '../Constants/styleVariable';
+
+const Layout = () => {
+  return (
+>>>>>>> origin/main
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -118,7 +127,18 @@ const Layout = () => {
       />
       <Tabs.Screen
         name="Add"
+<<<<<<< HEAD
         options={{ title: "Add", headerShown: false,tabBarIcon:({color,size,focused})=>null }}//hiding the button
+=======
+        options={{ title: "Add", headerShown: false,tabBarIcon:({color,size,focused})=>{
+          return( 
+            <View style={[styles.addButton,  {transform:[{scale: focused ? 1.1:1}]} ]}>
+           <Fontisto name="plus-a" size={size} color='white' />
+           </View>
+            
+          )
+        } }}
+>>>>>>> origin/main
       />
       <Tabs.Screen
         name="Stats"
@@ -143,6 +163,7 @@ const Layout = () => {
         } }}
       />
     </Tabs>
+<<<<<<< HEAD
     {/* Overlay*/}
             {
               menuOpen && (
@@ -191,6 +212,8 @@ const Layout = () => {
       
     
     </>
+=======
+>>>>>>> origin/main
   );
 };
 
@@ -198,14 +221,20 @@ export default Layout;
 
 const styles = StyleSheet.create({
   addButton:{
+<<<<<<< HEAD
     width:70,
     height:70,
+=======
+    width:60,
+    height:60,
+>>>>>>> origin/main
     backgroundColor:Colors.primary,
     justifyContent:'center',
     alignItems:'center',
     alignSelf:'center',
     borderRadius:100,
     position:'absolute',
+<<<<<<< HEAD
     bottom:30,
     zIndex:101
   },
@@ -238,4 +267,9 @@ floatingRow: {
   gap: 50,
 },
 
+=======
+    bottom:1,
+
+  }
+>>>>>>> origin/main
 });

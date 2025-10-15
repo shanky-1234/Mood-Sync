@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   ActivityIndicator,
   Image,
@@ -138,6 +139,33 @@ const CreateAccount = () => {
             style={{ flex: 1 }}
           >
             <View style={{ gap: 16 }}>
+=======
+import { Image, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Colors } from "../Constants/styleVariable";
+import { globalStyle } from "../Constants/globalStyles";
+import { Button, TextInput } from "react-native-paper";
+import { Link } from "expo-router";
+import { KeyboardAvoidingView } from "react-native";
+
+const CreateAccount = () => {
+  return (
+     <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <View style={[styles.container]}>
+          <View style={{ alignItems: "center", marginTop: 40 }}>
+            <Image
+              source={require("../../assets/logos/MoodSync.png")}
+              style={{ width: 200, height: 50 }}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={styles.title}>Create Account</Text>
+          
+          <View style={[styles.loginContainer, globalStyle.container]}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: '80%' }} 
+    style={{ flex: 1 }}>
+                
+            <View style={{  gap: 16 }}>
+>>>>>>> origin/main
               <View>
                 <TextInput
                   style={styles.input}
@@ -150,6 +178,7 @@ const CreateAccount = () => {
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
+<<<<<<< HEAD
                   value={fullname}
                   onChangeText={(fullname)=>setFullname(fullname)}
                 />
@@ -228,6 +257,13 @@ const CreateAccount = () => {
                 <TextInput
                   style={styles.input}
                   textContentType="emailAddress"
+=======
+                />
+              </View>
+                 <View>
+                <TextInput
+                  style={styles.input}
+>>>>>>> origin/main
                   autoCapitalize="none"
                   keyboardType="email-address"
                   mode="outlined"
@@ -238,12 +274,16 @@ const CreateAccount = () => {
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
+<<<<<<< HEAD
                   value={email}
                   onChangeText={(email)=>setEmail(email)}
                 />
                 {
                   
                 }
+=======
+                />
+>>>>>>> origin/main
               </View>
               <View>
                 <TextInput
@@ -258,8 +298,11 @@ const CreateAccount = () => {
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
+<<<<<<< HEAD
                   value={password}
                   onChangeText={(password)=>setPassword(password)}
+=======
+>>>>>>> origin/main
                 />
               </View>
               <View>
@@ -275,6 +318,7 @@ const CreateAccount = () => {
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
+<<<<<<< HEAD
                   value={confirmPassword}
                   onChangeText={(confirmPassword)=>setConfirmPassword(confirmPassword)}
                 />
@@ -298,6 +342,19 @@ const CreateAccount = () => {
                 
               </Button>
               
+=======
+                />
+              </View>
+            </View>
+            <View>
+              <Button
+                mode="contained"
+                style={styles.button}
+                labelStyle={{ fontFamily: "Fredoka-Regular" }}
+              >
+                Create Account
+              </Button>
+>>>>>>> origin/main
               <Button
                 mode="text"
                 labelStyle={{
@@ -309,7 +366,11 @@ const CreateAccount = () => {
                 Forgot Password ?
               </Button>
             </View>
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/main
             <Text style={{ textAlign: "center", marginTop: 20 }}>OR</Text>
             <Button
               mode="outlined"
@@ -318,6 +379,7 @@ const CreateAccount = () => {
                 fontFamily: "Fredoka-Regular",
                 color: Colors.primary,
                 marginTop: 16,
+<<<<<<< HEAD
               }}
               contentStyle={{
                 alignContent: "center",
@@ -389,6 +451,34 @@ const CreateAccount = () => {
 };
 
 export default CreateAccount;
+=======
+                
+              }}
+              contentStyle={{alignContent:'center',flexDirection:'row',justifyContent:'center',alignItems:'center'}}
+            >
+              <View style={{flexDirection:'row'}}>
+              <Image source={require('../../assets/icons/google.png')} style={{width:18,height:18,marginRight:8}}/>
+              
+              <Text style={{fontSize:14,color:'black',fontFamily:'Fredoka-Regular'}}>
+                Continue With Google
+              </Text>
+              </View>
+            </Button>
+            <View style={{justifyContent:'center',alignItems:'center',alignContent:'center',marginTop:60}}>
+              <Text style={{fontFamily:'Fredoka-Regular'}}>Already Have an Account ?</Text>
+              <Link style={{color:Colors.primary, marginTop:8, fontFamily:'Fredoka-Regular'}} href={'./Login/'}>Login Account</Link>
+            </View>
+            
+            </ScrollView>
+          </View>
+          
+        </View>
+        </KeyboardAvoidingView>
+  )
+}
+
+export default CreateAccount
+>>>>>>> origin/main
 
 const styles = StyleSheet.create({
   container: {
@@ -422,12 +512,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignContent: "center",
     justifyContent: "center",
+<<<<<<< HEAD
     gap: 8,
+=======
+    gap:8
+>>>>>>> origin/main
   },
   buttonOutlined: {
     borderColor: "#DEDEDE",
     borderRadius: 8,
     height: 56,
+<<<<<<< HEAD
     marginTop: 20,
   },
   errorText:{
@@ -435,4 +530,8 @@ const styles = StyleSheet.create({
     fontSize:12,
     color:'#FF6B6B', marginTop: 4, marginLeft: 4
   }
+=======
+    marginTop:20
+  },
+>>>>>>> origin/main
 });

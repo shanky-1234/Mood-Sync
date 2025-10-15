@@ -14,6 +14,7 @@
     "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.0.2",
     "@nassim99/react-native-gauge": "^0.0.8",
+<<<<<<< HEAD
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-picker/picker": "^2.11.2",
     "@react-navigation/bottom-tabs": "^7.4.0",
@@ -22,6 +23,11 @@
     "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.12.2",
     "dotenv": "^17.2.3",
+=======
+    "@react-navigation/bottom-tabs": "^7.4.0",
+    "@react-navigation/elements": "^2.6.3",
+    "@react-navigation/native": "^7.1.8",
+>>>>>>> origin/main
     "expo": "~54.0.10",
     "expo-build-properties": "~1.0.9",
     "expo-constants": "~18.0.9",
@@ -41,15 +47,22 @@
     "react-native-circular-progress": "^1.4.1",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-paper": "^5.14.5",
+<<<<<<< HEAD
     "react-native-picker-select": "^9.3.1",
+=======
+>>>>>>> origin/main
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "react-native-svg": "^15.12.1",
     "react-native-web": "~0.21.0",
+<<<<<<< HEAD
     "react-native-worklets": "0.5.1",
     "react-redux": "^9.2.0",
     "redux-persist": "^6.0.0"
+=======
+    "react-native-worklets": "0.5.1"
+>>>>>>> origin/main
   },
   "devDependencies": {
     "@types/react": "~19.1.0",

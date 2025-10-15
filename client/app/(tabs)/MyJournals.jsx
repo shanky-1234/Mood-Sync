@@ -8,7 +8,10 @@ const MyJournals = () => {
       <Text>MyJournals</Text>
        <Link href={'../authPages/Login'}>Login</Link>
        <Link href={'../authPages/OnboardingAuth'}>Onboarding</Link>
+<<<<<<< HEAD
         
+=======
+>>>>>>> origin/main
     </View>
   )
 }
