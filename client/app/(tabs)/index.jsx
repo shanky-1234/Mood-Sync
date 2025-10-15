@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 import { Link, useRouter } from "expo-router";
 import {
   ActivityIndicator,
-=======
-import { Link } from "expo-router";
-import {
->>>>>>> origin/main
   FlatList,
   Image,
   ScrollView,
@@ -26,7 +21,6 @@ import MoodCoach from '../components/MoodCoach'
 
 import getCurrentDate from "../utils/getCurrentDate";
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
 import { useDispatch, useSelector } from "react-redux";
 
 import { setLoading } from "../redux/slices/authSlice";
@@ -60,20 +54,6 @@ export default function Index() {
     getTime()
    
   }, []);
-=======
-
-export default function Index() {
-  const [week, setWeek] = useState(null);
-  const [month, setMonth] = useState(""); // Set The Current Month
-  const date = getCurrentDate(); // Get The Current Date Information (Today)
-  const fill =20
-
-  useEffect(() => {
-    getMonth();
-    displayCurrentWeek();
-    // console.log(month)
-  }, [month]);
->>>>>>> origin/main
 
   // Function to get the current month
   const getMonth = () => {
@@ -109,7 +89,6 @@ export default function Index() {
     console.log(week);
   };
 
-<<<<<<< HEAD
   const getTime = () =>{
     const date = new Date()
     const getTime = date.getHours()
@@ -119,17 +98,11 @@ export default function Index() {
 
 
   
-=======
->>>>>>> origin/main
   return (
     <>
       <ScrollView style={{ flex: 1, }} nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
         <Appbar.Header style={[style.headerStyle]} statusBarHeight={8}>
-<<<<<<< HEAD
           <TouchableOpacity style={{ marginHorizontal: 28 }} onPress={()=>router.replace('/profile/ProfilePage')}>
-=======
-          <TouchableOpacity style={{ marginHorizontal: 28 }}>
->>>>>>> origin/main
             <View style={{ borderRadius: 50 }}>
               <Image
                 source={require("../../assets/icons/default-profile-pic.png")}
@@ -154,15 +127,10 @@ export default function Index() {
               >
                 {date}
               </Text>
-<<<<<<< HEAD
               <Text style={style.headingTitle}>{
                 time <= 12  ? "Good Morning" : time<18 ?  "Good Afternoon":"Good Evening"
                 }</Text>
               <Text style={style.subTitle}>{userInfo ? userInfo.fullname : 'Username'}</Text>
-=======
-              <Text style={style.headingTitle}>Good Evening!</Text>
-              <Text style={style.subTitle}>Username</Text>
->>>>>>> origin/main
             </View>
             <View style={style.badgeContainer}>
               <Badge style={style.badgeStyle}>
