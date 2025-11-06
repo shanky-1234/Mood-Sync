@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-
-
+import api from './api';
 
 const authService = {
     normalRegistration : async (userData) =>{
@@ -20,7 +19,7 @@ const authService = {
     },
     login: async(email,password) =>{
         try {
-            const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}auth/login`,{email,password},{
+            const response = await api.post(`${process.env.EXPO_PUBLIC_API_URL}auth/login`,{email,password},{
                 headers:{
                     "Content-Type":'application/json'
                 }
@@ -43,7 +42,7 @@ const authService = {
     },
     logout: async() =>{
         try {
-            const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}auth/logout`)
+            const response = await api.post(`${process.env.EXPO_PUBLIC_API_URL}auth/logout`)
             if(response.data.success === true){
                 await AsyncStorage.removeItem('UserData')
                 await AsyncStorage.removeItem('UserToken')

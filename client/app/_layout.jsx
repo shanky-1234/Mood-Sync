@@ -1,4 +1,4 @@
-import { SplashScreen, Stack, useRouter } from "expo-router";
+import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { View, ActivityIndicator } from "react-native";
 import { Colors } from "./Constants/styleVariable";
 import { setLoading, setToken, setUser } from "./redux/slices/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from './Service/api'
 
 
 SplashScreen.preventAutoHideAsync();
@@ -17,26 +18,50 @@ function RouteRoots() {
   const router = useRouter();
   const { isLoading } = useSelector((state) => state.auth);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const segment = useSegments()
+
 
   useEffect(() => {
+
     const checkLogin = async () => {
       try {
         const data = await AsyncStorage.getItem("UserData");
         const tokenData = await AsyncStorage.getItem("UserToken");
 
         if (data && tokenData) {
-          const parsed = JSON.parse(data);
+          try{
+             const verifyResponse = await api.get('auth/verify')
+          if(verifyResponse.data.success){
+             const parsed = JSON.parse(data);
           dispatch(setUser(parsed));
           dispatch(setToken(tokenData));
           setIsLoggedIn(true);
-          router.replace("/(tabs)");
-        } else {
+          if(segment[0] === 'authPages'){
+            router.replace("/(tabs)");
+          }
+          return
+          }
+         
+        }
+        catch(error){
+          console.log("Token invalid:", verifyError.response?.data || error);
+          await AsyncStorage.removeItem("UserData");
+          await AsyncStorage.removeItem("UserToken");
           setIsLoggedIn(false);
           router.replace("/authPages/Login");
+          return;
         }
+        } 
+         await AsyncStorage.removeItem("UserData");
+      await AsyncStorage.removeItem("UserToken");
+      setIsLoggedIn(false);
+      router.replace("/authPages/Login");
       } catch (error) {
         console.log("Error loading user data:", error);
+        await AsyncStorage.removeItem('UserData')
+        await AsyncStorage.removeItem('UserToken')
         router.replace("/authPages/Login");
+
       } finally {
         dispatch(setLoading(false));
       }
@@ -66,6 +91,10 @@ function RouteRoots() {
       <Stack.Screen
         name="(checkin)"
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="(journal)"
+        options={{headerShown: false}}
       />
     </Stack>
   );

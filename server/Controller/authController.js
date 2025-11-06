@@ -94,15 +94,15 @@ const login = async(req,res)=>{
 
     const token={
         userId:getUser._id,
-        email,
+        email:getUser.email,
     }
 
-    const generateToken = await jwt.sign(token,process.env.JWTSECUREKEY,{expiresIn:'7d'})
+    const generate = jwt.sign(token,process.env.JWTSECUREKEY,{expiresIn:'7d'})
     return res.status(200).json({
         success:true,
         message:`Logged In Sucessfully, Welcome ${getUser.fullname}`,
         getUser,
-        generateToken
+        generate
     })
     } catch (error) {
            console.error(error)
@@ -113,6 +113,26 @@ const login = async(req,res)=>{
         })
     }
    
+}
+
+const getUserData = async (req,res)=>{
+    try{
+        const userData = await userModel.findOne(req._id)
+        if(!userData){
+            return res.status(403).json({
+            success:false,
+            message:'Invalid Token'
+        })
+        }
+        return res.status(200).json({
+            success:true,
+            message:'Successfully Verified',
+            userData
+        })
+    }
+    catch(error){
+        console.error(error)
+    }
 }
 
 const logout =(req,res)=>{
@@ -131,4 +151,4 @@ const logout =(req,res)=>{
     }
 }
 
-module.exports = {login,registerUser,logout}
+module.exports = {login,registerUser,logout,getUserData}

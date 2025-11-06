@@ -30,11 +30,11 @@ const Layout = () => {
     ),headerRight:()=>(
         <Button style={{marginTop:28}}><AntDesign name="close" size={24} color={Colors.primary} onPress={()=>router.replace('/(tabs)')}/></Button>
     ),headerTitleStyle:{color:Colors.primary,fontFamily:'Fredoka-Bold',fontSize:28},headerTitleAlign:'center',headerShadowVisible:false}}>
-        <Stack.Screen name='fisrtStep' options={{ headerShown:false}}/>
-          <Stack.Screen name='secondStep' options={{headerShown:false}}/>
-            <Stack.Screen name='thirdStep' options={{headerShown:false}}/>
-              <Stack.Screen name='fourthStep' options={{headerShown:false}}/>
-                <Stack.Screen name='fifthStep' options={{headerShown:false}}/>
+        <Stack.Screen name='fisrtStep' options={{ headerShown:true}}/>
+          <Stack.Screen name='secondStep' options={{headerShown:true}}/>
+            <Stack.Screen name='thirdStep' options={{headerShown:true}}/>
+              <Stack.Screen name='fourthStep' options={{headerShown:true}}/>
+                <Stack.Screen name='fifthStep' options={{headerShown:true}}/>
 
         
     </Stack>
