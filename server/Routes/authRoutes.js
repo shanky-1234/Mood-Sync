@@ -1,5 +1,5 @@
 const express = require('express')
-const { registerUser, login,logout, getUserData } = require('../Controller/authController')
+const { registerUser, login,logout, getUserData, googleAuth } = require('../Controller/authController')
 const verifyToken = require('../Middleware/user')
 
 
@@ -16,6 +16,7 @@ router.get('/verify',verifyToken,(req,res)=>{
     user: req.user,
     })
 })
+router.get('/google',googleAuth)
 
 
 module.exports = router

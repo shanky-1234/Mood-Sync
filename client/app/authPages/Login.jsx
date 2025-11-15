@@ -17,10 +17,18 @@ import {
 } from "react-native-paper";
 import { Link, useRouter } from "expo-router";
 import { KeyboardAvoidingView } from "react-native";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import authService from "../Service/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setToken, setUser } from "../redux/slices/authSlice";
+import * as WebBrowser from "expo-web-browser";
+import * as Google from 'expo-auth-session/providers/google'
+import * as AuthSession from 'expo-auth-session'
+import { useEffect } from "react";
+
+
+
+WebBrowser.maybeCompleteAuthSession()
 
 const Login = () => {
   const router = useRouter();
@@ -29,23 +37,52 @@ const Login = () => {
   const [visible, setVisible] = useState(false);
   const [dialougeTitle, setDialougeTitle] = useState("");
   const [dialougeContent, setDialougeContent] = useState("");
-
   const { isLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId:process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    redirectUri:AuthSession.makeRedirectUri({
+      scheme:"client"
+    })
+  })
 
+  useEffect(()=>{
+    if(response?.type === 'success'){
+      const {authentication} = response
+      console.log('token:',authentication.accessToken)
+    }else if (response?.type === "error") {
+       console.log("Google Auth Error:", response.error);
+    }
+  },[response])
+
+  const fetchUserInfo = async(token)=>{
+    try {
+      const res = await fetch("https://www.googleapis.com/userinfo/v2/me",{
+        headers:{Authorization:`Bearer ${token}`}
+      })
+      const user = await res.json()
+      console.log('user',user)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+ 
   const handleLogin = async () => {
-    dispatch(setLoading(true));
+  
     if (!email || !password) {
       setDialougeTitle("Fields Are Empty");
       setVisible(true);
+      return
     }
 
     if (!email.includes("@")) {
       setDialougeTitle("Email Not Valid");
       setDialougeContent("");
       setVisible(true);
+      return
     }
-
+    dispatch(setLoading(true))
     try {
       const response = await authService.login(email, password);
       if (response.success === true) {
@@ -53,20 +90,20 @@ const Login = () => {
         dispatch(setToken(response.generateToken))
         console.log("loggedinsuccessfully");
         console.log(response)
+        
         router.replace("/(tabs)");
       }
 
     } catch (error) {
       console.error(error);
       
-      const message = error.message;
-      if (message) {
-        setDialougeTitle(message);
-        setDialougeContent("");
-        setVisible(true);
-      }
+      const message = error.message || 'Error occured';
+     setDialougeTitle("Login Error");
+      setDialougeContent(message);
+      setVisible(true)
     } finally {
       dispatch(setLoading(false));
+
     }
   };
   return (
@@ -153,6 +190,7 @@ const Login = () => {
 
             <Text style={{ textAlign: "center", marginTop: 20 }}>OR</Text>
             <Button
+              onPress={()=>promptAsync({useProxy:true})}
               mode="outlined"
               style={styles.buttonOutlined}
               labelStyle={{
@@ -171,8 +209,8 @@ const Login = () => {
                 <Image
                   source={require("../../assets/icons/google.png")}
                   style={{ width: 18, height: 18, marginRight: 8 }}
+                  
                 />
-
                 <Text
                   style={{
                     fontSize: 14,

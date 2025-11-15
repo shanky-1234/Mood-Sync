@@ -10,6 +10,9 @@ import { useState } from 'react';
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { overlay } from 'react-native-paper';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { useRoute } from '@react-navigation/native';
+
 
 
 const Layout = () => {
@@ -19,6 +22,7 @@ const Layout = () => {
   const overlayOpacity = useState(new Animated.Value(0)).current;
   const optionOpacity = useState(new Animated.Value(0))[0];
   const optionTranslate = useState(new Animated.Value(20))[0]
+  
   const toggleMenu = () =>{
     if(menuOpen){
        Animated.parallel([
@@ -107,7 +111,12 @@ const Layout = () => {
       />
       <Tabs.Screen
         name="MyJournals"
-        options={{ title: "My Journals", headerShown: false ,tabBarIcon:({color,size,focused})=>{
+        options={{ title: "My Journals", headerShown: true , headerStyle:{backgroundColor:'#FBE7E5',elevation:0}, headerTitleStyle:{fontFamily:'Fredoka-Bold', fontSize:28, color:Colors.primary},headerRight:()=>{
+          return (
+           <Ionicons name="add" size={32} color={Colors.primary} style={{paddingRight:28}} onPress={()=>router.replace('addJournal')} />
+
+          )
+        },tabBarIcon:({color,size,focused})=>{
           return( focused ? 
             
             <FontAwesome5 name="book-open" size={size} color={color}/>:

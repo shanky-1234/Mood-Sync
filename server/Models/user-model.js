@@ -3,19 +3,16 @@ const mongoose = require('mongoose')
 const UserSchema = new mongoose.Schema({
     fullname:{
         type:String,
-        required:true,
         trim:true
     },
     age:{
         type:Number,
-        required:true,
         min:13,
         max:80
     },
     gender:{
         type:String,
         enum:['male','female','other'],
-        require:true
     },
     email:{
         type:String,
@@ -27,8 +24,12 @@ const UserSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true,
         minlength:6
+    },
+    googleId:{
+        type:String,
+        unique:true,
+        sparse:true
     },
     createdAt:{
         type:Date,

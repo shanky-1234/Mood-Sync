@@ -22,8 +22,9 @@ import MoodCoach from '../components/MoodCoach'
 import getCurrentDate from "../utils/getCurrentDate";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setToken, setUser } from "../redux/slices/authSlice";
 
-import { setLoading } from "../redux/slices/authSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Index() {
   const [loggedInfo,setLoggedInfo] = useState(null) 
@@ -31,7 +32,7 @@ export default function Index() {
   const [month, setMonth] = useState(""); // Set The Current Month
   const [time,setTime] = useState(null)
   const router = useRouter()
- 
+ const dispatch = useDispatch()
 
   
   const{userInfo,isLoading,userToken} = useSelector((state)=>state.auth) // Get from slices and states
@@ -41,17 +42,40 @@ export default function Index() {
 
 
   useEffect(() => {
+    const checkUser = async () =>{
+     try {
+      const storedUser = await AsyncStorage.getItem("UserData");
+      const storedToken = await AsyncStorage.getItem("UserToken");
 
-      console.log('User Informations',userInfo)
-      console.log('Token',userToken)
-    if (userInfo == null && userToken == null) {
-      router.replace("/authPages/Login")  //use dot notation
-      return
+      console.log("UserData (Raw):", storedUser);
+      console.log("UserToken (Raw):", storedToken);
+
+      if (!storedUser || !storedToken) {
+        console.log("No user found in AsyncStorage");
+        router.replace("/authPages/Login");
+        return;
+      }
+
+      const parsedUser = JSON.parse(storedUser);
+      console.log("Parsed User:", parsedUser);
+
+      // Update redux only if it’s empty (avoid unnecessary re-render)
+      if (!userInfo || !userToken) {
+        dispatch(setUser(parsedUser));
+        dispatch(setToken(storedToken));
+      }
+
+      // Now that user exists, continue
+      setLoggedInfo(parsedUser);
+      getMonth();
+      displayCurrentWeek();
+      getTime();
+    } catch (error) {
+      console.log("Error fetching AsyncStorage data:", error);
+      router.replace("/authPages/Login");
     }
-    setLoggedInfo(userInfo)
-    getMonth();
-    displayCurrentWeek();
-    getTime()
+    }
+     checkUser()
    
   }, []);
 

@@ -109,6 +109,7 @@ console.log(allSelectedValues);
             {item.map((items, index) => {
               return (
                 <MultiSelectOptions
+                key={index}
   items={items}
   index={index}
   limit={4}

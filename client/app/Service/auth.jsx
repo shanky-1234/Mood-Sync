@@ -1,56 +1,100 @@
+// Service/auth.js - Fixed version
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
-import api from './api';
+import api from './api'
 
 const authService = {
-    normalRegistration : async (userData) =>{
-        try {
-            const respone = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}auth/registerUser`,userData)
-            console.log(respone.data)
-            return respone.data
-        } catch (error) {
-            console.error(error)
-            const errorMessage = error.response?.data?.message
-             console.log(errorMessage)
-            throw new Error(errorMessage)
-     
+  normalRegistration: async (userData) => {
+    try {
+      // Use api instance with relative path
+      const response = await api.post(
+        'auth/registerUser',  // ✅ Relative path
+        userData,
+        {
+          timeout: 10000,
         }
-    },
-    login: async(email,password) =>{
-        try {
-            const response = await api.post(`${process.env.EXPO_PUBLIC_API_URL}auth/login`,{email,password},{
-                headers:{
-                    "Content-Type":'application/json'
-                }
-            })
-            
-             if(response.data.success === true && response.data.generateToken){
-                await AsyncStorage.setItem('UserToken',response.data.generateToken)
-                await AsyncStorage.setItem('UserData',JSON.stringify(response.data.getUser))
-                console.log()
-            }
-            console.log(response.data)
-            return response.data
-
-        } catch (error) {
-             console.error(error)
-              const errorMessage = error.response?.data?.message
-             console.log(errorMessage)
-            throw new Error(errorMessage)
-        }
-    },
-    logout: async() =>{
-        try {
-            const response = await api.post(`${process.env.EXPO_PUBLIC_API_URL}auth/logout`)
-            if(response.data.success === true){
-                await AsyncStorage.removeItem('UserData')
-                await AsyncStorage.removeItem('UserToken')
-            }
-            return response.data
-        } catch (error) {
-            console.error(error)
-        }
+      );
+      console.log('Registration response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Registration error:', error);
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      throw new Error(errorMessage);
     }
-}
-export default authService
+  },
+
+  login: async (email, password) => {
+    try {
+      console.log('Attempting login...');
+      console.log('API Base URL:', process.env.EXPO_PUBLIC_API_URL);
+      
+      // Use api instance (which already has baseURL) with relative path
+      const response = await api.post(
+        'auth/login',  // ✅ Relative path, not full URL
+        { email, password },
+        {
+          timeout: 10000, // 10 seconds timeout
+        }
+      );
+
+      console.log('Login response:', response.data);
+
+      // Store token and user data if login successful
+      if (response.data.success === true && response.data.generate) {
+        await AsyncStorage.setItem('UserToken', response.data.generate);
+        await AsyncStorage.setItem('UserData', JSON.stringify(response.data.getUser));
+        console.log('Token and user data saved to AsyncStorage');
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      // Handle different error scenarios
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('Request timeout. Please check your connection.');
+      }
+      
+      if (error.response) {
+        // Server responded with error
+        const errorMessage = error.response?.data?.message || 'Login failed';
+        throw new Error(errorMessage);
+      } else if (error.request) {
+        // Request made but no response
+        throw new Error('No response from server. Please check your connection.');
+      } else {
+        // Something else happened
+        throw new Error(error.message || 'An unexpected error occurred');
+      }
+    }
+  },
+
+  logout: async () => {
+    try {
+      // Use api instance with relative path
+      const response = await api.post(
+        'auth/logout',  // ✅ Relative path
+        {},
+        {
+          timeout: 10000,
+        }
+      );
+      
+      // Always clear local storage on logout
+      await AsyncStorage.removeItem('UserData');
+      await AsyncStorage.removeItem('UserToken');
+      
+      return response.data;
+    } catch (error) {
+      console.error('Logout error:', error);
+      
+      // Clear storage even if request fails
+      await AsyncStorage.removeItem('UserData');
+      await AsyncStorage.removeItem('UserToken');
+      
+      throw error;
+    }
+  },
+};
+
+export default authService;

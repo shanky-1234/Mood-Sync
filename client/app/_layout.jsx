@@ -9,9 +9,10 @@ import { Colors } from "./Constants/styleVariable";
 import { setLoading, setToken, setUser } from "./redux/slices/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from './Service/api'
+import {GestureHandlerRootView} from 'react-native-gesture-handler'
 
 
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 function RouteRoots() {
   const dispatch = useDispatch();
@@ -21,54 +22,75 @@ function RouteRoots() {
   const segment = useSegments()
 
 
-  useEffect(() => {
+useEffect(() => {
+  const checkLogin = async () => {
+    try {
+      const data = await AsyncStorage.getItem("UserData");
+      const tokenData = await AsyncStorage.getItem("UserToken");
 
-    const checkLogin = async () => {
-      try {
-        const data = await AsyncStorage.getItem("UserData");
-        const tokenData = await AsyncStorage.getItem("UserToken");
+      if (data && tokenData) {
+        try {
+          const verifyResponse = await api.get("auth/verify");
+          
+          if (verifyResponse.data.success) {
+            const parsed = JSON.parse(data);
+            dispatch(setUser(parsed));
+            dispatch(setToken(tokenData));
+            setIsLoggedIn(true);
 
-        if (data && tokenData) {
-          try{
-             const verifyResponse = await api.get('auth/verify')
-          if(verifyResponse.data.success){
-             const parsed = JSON.parse(data);
-          dispatch(setUser(parsed));
-          dispatch(setToken(tokenData));
-          setIsLoggedIn(true);
-          if(segment[0] === 'authPages'){
-            router.replace("/(tabs)");
+            if (segment[0] === "authPages") {
+              router.replace("/(tabs)");
+            }
+            return; 
+          } else {
+           
+            await AsyncStorage.removeItem("UserData");
+            await AsyncStorage.removeItem("UserToken");
+            dispatch(setUser(null));
+            dispatch(setToken(null));
+            router.replace("/authPages/Login");
+            return;
           }
-          return
+        } catch (error) {
+          console.log("Token invalid:", error.response?.data || error);
+
+          //invalid token gets cleared immediately
+          if (error.response?.status === 401 || error.response?.status === 403) {
+            await AsyncStorage.removeItem("UserData");
+            await AsyncStorage.removeItem("UserToken");
+            dispatch(setUser(null));
+            dispatch(setToken(null));
+            router.replace("/authPages/Login");
+            return;
+          } else {
+            // Network issue — keep user
+            console.log("Network error, staying logged in offline");
+            const parsed = JSON.parse(data);
+            dispatch(setUser(parsed));
+            dispatch(setToken(tokenData));
+
+            if (segment[0] === "authPages") {
+              router.replace("/(tabs)");
+            }
+            return; 
           }
-         
         }
-        catch(error){
-          console.log("Token invalid:", verifyError.response?.data || error);
-          await AsyncStorage.removeItem("UserData");
-          await AsyncStorage.removeItem("UserToken");
-          setIsLoggedIn(false);
-          router.replace("/authPages/Login");
-          return;
-        }
-        } 
-         await AsyncStorage.removeItem("UserData");
-      await AsyncStorage.removeItem("UserToken");
-      setIsLoggedIn(false);
-      router.replace("/authPages/Login");
-      } catch (error) {
-        console.log("Error loading user data:", error);
-        await AsyncStorage.removeItem('UserData')
-        await AsyncStorage.removeItem('UserToken')
+      } else {
+        console.log("Async Storage Not Detected");
         router.replace("/authPages/Login");
-
-      } finally {
-        dispatch(setLoading(false));
+        return;
       }
-    };
+    } catch (error) {
+      console.log("Error loading user data:", error);
+      router.replace("/authPages/Login");
+      return;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
-    checkLogin();
-  }, []);
+  checkLogin();
+}, []);
 
  
 
@@ -138,6 +160,7 @@ export default function RootLayout() {
   }
 
   return (
+    <GestureHandlerRootView style={{flex:1}}>
     <Provider store={store}>
       <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
@@ -145,5 +168,6 @@ export default function RootLayout() {
         </SafeAreaView>
       </SafeAreaProvider>
     </Provider>
+    </GestureHandlerRootView>
   );
 }

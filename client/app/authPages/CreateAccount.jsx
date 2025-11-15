@@ -41,11 +41,11 @@ const CreateAccount = () => {
 
   const handleRegisterAccount = async () =>{
     console.log(fullname,age,gender,email,password,confirmPassword)
-    dispatch(setLoading(true))
+    
 
     const hasNumber = /\d/.test(password)  // Check for at least one number
     const hasCharacter = /[a-zA-Z]/.test(password)  // Check for at least one letter
-    const hasSpecialCharacters = !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    const hasSpecialCharacters = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
     
     const ageNum = parseInt(age) 
     const userData = {fullname,age:ageNum,gender,email,password}
@@ -55,36 +55,37 @@ const CreateAccount = () => {
           setDialougeTitle('Fields are Empty')
           setDialougeContent('Fill all the fields!')
           setVisible(true)
+          return
         }
 
       if(age<14){
         setDialougeTitle('Age Limit Warning')
         setDialougeContent('Must Be above 14')
         setVisible(true)
-        
+        return
       }
          if(!email.includes('@')){
         setDialougeTitle('Email Not Valid')
           setDialougeContent('Your Email is Not Valid')
           setVisible(true)
-          
+          return
       }
 
       if(password.length <=6 || !hasCharacter || !hasNumber ||!hasSpecialCharacters){
         setDialougeTitle('Password is Weak')
           setDialougeContent('Password must be minimum 6 Characters and Must contain numerical,Capital Letter and speacial characters')
           setVisible(true)
-       
+       return
       }
 
       if(password !== confirmPassword){
         setDialougeTitle('Password Doesnt Match!')
           setDialougeContent('Double Check your password so you wont forget')
           setVisible(true)
-         
+         return
       }      
 
-
+      dispatch(setLoading(true))
       
       const response = await authService.normalRegistration(userData)
       if(response){
@@ -105,12 +106,12 @@ const CreateAccount = () => {
        console.log(errorMessage)
       if (errorMessage) {
     setDialougeTitle('Registration Failed')
-    setDialougeContent(errorMessage)  // ✅ This will show "User Already Exists..."
+    setDialougeContent(errorMessage)  
     setVisible(true)
   } //error cominng from server
     } finally{
       dispatch(setLoading(false))
-      
+      console.log('loading reset')
     }
   }
 

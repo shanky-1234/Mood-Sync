@@ -12,6 +12,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.shashank.moodsync",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/logos/moodSyncLogo.png"
@@ -35,8 +36,7 @@
           "dark": {
             "backgroundColor": "#000000"
           }
-        },
-        
+        }
       ],
       [
         "expo-build-properties",
@@ -46,7 +46,8 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

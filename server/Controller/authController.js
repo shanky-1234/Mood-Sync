@@ -1,8 +1,60 @@
 const jwt = require('jsonwebtoken')
 const bycrypt = require('bcryptjs')
 const userModel = require('../Models/user-model')
+const {OAuth2Client} = require('google-auth-library')
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 require('dotenv').config()
 
+const googleAuth = async (req,res) =>{
+    try{
+        const {token} = req.body
+
+        if(!token){
+            return res.status(400).json({
+                success:false,
+                message:'Missing Google Token'
+            })
+        }
+
+        //Verifying Google Token 
+        const ticket = await client.verifyIdToken({
+            idToken:token,
+            audience:process.env.GOOGLE_CLIENT_ID
+        })
+
+        const payload = ticket.getPayload()
+        const {sub,email,name} = payload
+
+        const user = await userModel.findOne({email})
+        if(!user){
+            user = await userModel.create({
+                fullname:name,
+                email,
+                googleId:sub,
+            })
+        }
+
+        const tokens={
+        userId:getUser._id,
+        email:getUser.email,
+    }
+
+        const generate = jwt.sign(tokens,process.env.JWTSECUREKEY,{expiresIn:'1d'})
+         return res.status(200).json({
+      success: true,
+      message: `Google login successful! Welcome ${user.fullname}`,
+      generate,
+      user,
+    });
+    }
+    catch(error){
+         return res.status(500).json({
+      success: false,
+      message: "Google authentication failed",
+      error: error.message,
+    });
+    }
+}
 
 const registerUser = async (req,res) =>{
     try{
@@ -97,7 +149,7 @@ const login = async(req,res)=>{
         email:getUser.email,
     }
 
-    const generate = jwt.sign(token,process.env.JWTSECUREKEY,{expiresIn:'7d'})
+    const generate = jwt.sign(token,process.env.JWTSECUREKEY,{expiresIn:'2d'})
     return res.status(200).json({
         success:true,
         message:`Logged In Sucessfully, Welcome ${getUser.fullname}`,
@@ -151,4 +203,4 @@ const logout =(req,res)=>{
     }
 }
 
-module.exports = {login,registerUser,logout,getUserData}
+module.exports = {login,registerUser,logout,getUserData,googleAuth}
