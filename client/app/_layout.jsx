@@ -10,6 +10,7 @@ import { setLoading, setToken, setUser } from "./redux/slices/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from './Service/api'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
+import PushnotificationManager from './components/PushnotificationManager'
 
 
 // SplashScreen.preventAutoHideAsync();
@@ -161,10 +162,13 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{flex:1}}>
+    
     <Provider store={store}>
       <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
+          <PushnotificationManager>
           <RouteRoots />
+          </PushnotificationManager>
         </SafeAreaView>
       </SafeAreaProvider>
     </Provider>

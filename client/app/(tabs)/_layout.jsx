@@ -184,7 +184,7 @@ const Layout = () => {
         <TouchableOpacity style={styles.floatingOption} onPress={()=>router.replace('/(checkin)/firstStep')}>
           <MaterialIcons name="emoji-emotions" size={24} color={Colors.primary} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.floatingOption}>
+        <TouchableOpacity style={styles.floatingOption} onPress={()=>router.replace('/(journal)/addJournal')}>
           <Ionicons name="journal-outline" size={24} color={Colors.primary} />
         </TouchableOpacity>
       </View>

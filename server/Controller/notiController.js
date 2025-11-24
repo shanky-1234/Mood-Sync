@@ -1,33 +1,46 @@
-const { default: Expo } = require('expo-server-sdk')
+const { default: Expo } = require('expo-server-sdk');
+const expo = new Expo();
 
-
-const expo = new Expo()
 const sendNotification = async (req,res)=>{
     try {
-        const {token,title,body,metadata} = req.body
-        if(!Expo.isExpoPushToken(token)){
-            res.status(400).json({
-                success:false,
-                message:'Invalid Token'
-            })
+        const { token, title, body, metadata } = req.body;
+
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                message: "No Token Provided"
+            });
+        }
+
+        if (!Expo.isExpoPushToken(token)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid Expo Push Token'
+            });
         }
 
         const message = {
-            success:true,
-            to:token,
-            sound:'default',
-            title:title,
-            body:body,
-            data:metadata || {},
-        }
+            to: token,
+            sound: 'default',
+            title: title || "No Title",
+            body: body || "No Body",
+            data: metadata || {},
+        };
 
-        const tickets = await expo.sendPushNotificationsAsync([message])
+        const tickets = await expo.sendPushNotificationsAsync([message]);
+        return res.status(200).json({
+            success: true,
+            tickets
+        });
 
-        return res.status(200).json(tickets)
     } catch (error) {
-        console.error('error')
-        throw new error
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: error.message
+        });
     }
-}
+};
 
-module.exports = sendNotification
+module.exports = sendNotification;
