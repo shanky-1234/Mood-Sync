@@ -104,8 +104,8 @@ console.log(allSelectedValues);
         ]}
         paginationStyle={{bottom:-10 }}
       >
-        {pages.map((item, index) => (
-          <View>
+        {pages.map((item,index) => (
+          <View key={index}>
             {item.map((items, index) => {
               return (
                 <MultiSelectOptions

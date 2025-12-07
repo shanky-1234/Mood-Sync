@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "MoodSync",
-    "slug": "client",
+    "slug": "moodsync",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logos/moodSyncLogo.png",
-    "scheme": "client",
+    "scheme": "moodsync",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

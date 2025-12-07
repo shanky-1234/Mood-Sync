@@ -6,6 +6,7 @@ require('dotenv').config()
 const userRouter = require('./Routes/authRoutes')
 const notiRouter = require('./Routes/notiRoutes')
 const journalRouter = require('./Routes/journalRoutes')
+const checkInRouter = require('./Routes/checkInRoutes')
 
 const app=express()
 app.use(cors())
@@ -15,7 +16,7 @@ const port = process.env.PORT
 app.use('/api/v1/auth/',userRouter)
 app.use('/api/v1/noti',notiRouter)
 app.use('/api/v1/journal/',journalRouter)
-
+app.use('/api/v1/checkIn/',checkInRouter)
 
 
 app.listen(port,()=>{

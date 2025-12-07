@@ -41,13 +41,17 @@ const Login = () => {
   const dispatch = useDispatch();
   
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId:process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-    redirectUri:AuthSession.makeRedirectUri({
-      scheme:"client"
-    })
-  })
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_ID,
+    redirectUri: AuthSession.makeRedirectUri({
+      scheme: Platform.OS === "android" || Platform.OS === "ios" ? "com.shashank.moodsync" : undefined,
+      useProxy: Platform.OS === "web",
+    }),
+  });
+
 
   useEffect(()=>{
+    console.log(AuthSession.makeRedirectUri({scheme:"com.shashank.moodsync"}))
     if(response?.type === 'success'){
       const {authentication} = response
       console.log('token:',authentication.accessToken)
@@ -231,7 +235,7 @@ const Login = () => {
               }}
             >
               <Text style={{ fontFamily: "Fredoka-Regular" }}>
-                Don't Have an Account ?
+                Dont Have an Account ?
               </Text>
               <Link
                 style={{

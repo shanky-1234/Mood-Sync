@@ -141,8 +141,8 @@ const Layout = () => {
         }  }}
       />
       <Tabs.Screen
-        name="Calender"
-        options={{ title: "Mood Calender", headerShown: false,tabBarIcon:({color,size,focused})=>{
+        name="Calenders"
+        options={{ title: "Mood Calender", headerShown: true, headerShadowVisible:false,headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary},headerStyle:{backgroundColor:'#FBE7E5'} ,tabBarIcon:({color,size,focused})=>{
           return( focused ? 
             
             <Ionicons name="calendar-sharp" size={size} color={color} />:

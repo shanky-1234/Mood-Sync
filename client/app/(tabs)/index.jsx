@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Appbar, Avatar, Badge, Button } from "react-native-paper";
+import { Appbar, Avatar, Badge, Button,ProgressBar } from "react-native-paper";
 
 import { Colors } from "../Constants/styleVariable";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -174,7 +174,7 @@ export default function Index() {
                       color: "white",
                     }}
                   >
-                    100
+                    {userInfo.streaks.current}
                   </Text>
                 </View>
               </Badge>
@@ -253,8 +253,19 @@ export default function Index() {
                 );
               }}
             />
+         
           </View>
-          <View style={{ marginTop: 28 }}>
+           <View style={{marginVertical:16,backgroundColor:'#fff',padding:16,borderRadius:12}}>
+            <Text style={{fontFamily:'Fredoka-Medium',color:Colors.primary,fontSize:20,textAlign:'center'}}>Your Level: {userInfo.currentLvl}</Text>
+              <ProgressBar progress={userInfo.currentExp/100} theme={{ colors: { primary: '#00E038' } }} style={{marginTop:8}}  />
+              <View>
+                <Text>Exp:{userInfo.currentExp}</Text>
+              </View>
+          </View>
+          <View style={{ marginTop: 28, position:'relative' }}>
+            <Image source={require('../../assets/logos/nepalbackground.png')}
+            resizeMode="contain"
+            style={{width:500,height:500,position:'absolute',bottom:30,right:0,left:-50}}/>
             <Image
               source={require("../../assets/mascot/sad.png")}
               resizeMode="contain"
@@ -271,7 +282,7 @@ export default function Index() {
                   color: Colors.secondary,
                 }}
               >
-                You're Feeling
+                Youre Feeling
               </Text>
               <Text
                 style={{
@@ -309,7 +320,7 @@ export default function Index() {
                 color: Colors.primary,
               }}
             >
-              Today's Analysis
+              Todays Analysis
             </Text>
             <View style={{ flexDirection: "row", width: "100%", gap: 12, marginTop:16 }}>
               <View

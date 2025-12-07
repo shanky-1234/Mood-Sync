@@ -20,37 +20,39 @@ console.log(allSelectedValues);
     router.back();
   };
   const activities = [
-    [
-      { value: "exercise", label: "Exercise", icon: "run",uncheckedColor:Colors.primary,  style:{borderColor:Colors.primary} },
-      { value: "sleep", label: "Sleep", icon: "sleep" },
-      { value: "coffee", label: "Coffee", icon: "coffee" },
-    ],
-    [
-      { value: "music", label: "Music", icon: "music" },
-      { value: "meditation", label: "Meditation", icon: "meditation" },
-      { value: "sunshine", label: "Sunshine", icon: "white-balance-sunny" },
-    ],
-    [
-      { value: "socialtime", label: "Social Time", icon: "account-group" },
-      { value: "food", label: "Food", icon: "food-apple" },
-      { value: "gaming", label: "Gaming", icon: "gamepad-variant" },
-    ],
-    [
-      { value: "reading", label: "Reading", icon: "book-open-variant" },
-      { value: "screentime", label: "Screen Time", icon: "cellphone" },
-      { value: "alcohol", label: "Alcohol", icon: "glass-cocktail" },
-    ],
-    [
-      { value: "naturewalk", label: "Nature Walk", icon: "tree" },
-      { value: "sugar", label: "Sugar", icon: "candy" },
-      { value: "stress", label: "Stress", icon: "alert-circle" },
-    ],
-    [
-      { value: "laughter", label: "Laughter", icon: "emoticon-happy" },
-      { value: "coldshower", label: "Cold Shower", icon: "shower" },
-      { value: "dancing", label: "Dancing", icon: "human-handsup" },
-    ],
-  ];
+  [
+    { value: "happy", label: "Happy", icon: "emoticon-happy-outline", uncheckedColor: Colors.primary, style: { borderColor: Colors.primary } },
+    { value: "excited", label: "Excited", icon: "emoticon-excited-outline" },
+    { value: "love", label: "Love", icon: "heart-outline" },
+  ],
+  [
+    { value: "funny", label: "Funny", icon: "emoticon-lol-outline" },
+    { value: "cringy", label: "Cringe", icon: "emoticon-confused-outline" },
+    { value: "proud", label: "Proud", icon: "emoticon-happy" },
+  ],
+  [
+    { value: "anxious", label: "Anxious", icon: "emoticon-worried-outline" },
+    { value: "stressed", label: "Stressed", icon: "alert-circle-outline" },
+    { value: "overwhelmed", label: "Overwhelmed", icon: "emoticon-sad-outline" },
+  ],
+  [
+    { value: "scared", label: "Scared", icon: "emoticon-dead-outline" },
+    { value: "confused", label: "Confused", icon: "help-circle-outline" },
+    { value: "embarrassed", label: "Embarrassed", icon: "emoticon-embarrassed-outline" },
+  ],
+  [
+    { value: "calm", label: "Calm", icon: "emoticon-cool-outline" },
+    { value: "relaxed", label: "Relaxed", icon: "beach" },
+    { value: "peaceful", label: "Peaceful", icon: "flower" },
+  ],
+  [
+    { value: "angry", label: "Angry", icon: "emoticon-angry-outline" },
+    { value: "jealous", label: "Jealous", icon: "eye-off-outline" },
+    { value: "bored", label: "Bored", icon: "emoticon-sad-outline" },
+  ]
+]
+
+
   const handleValues = (newValue)=>{
     setValue(newValue)
   }

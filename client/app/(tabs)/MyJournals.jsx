@@ -73,6 +73,8 @@ const handleDelete = async(id)=>{
       <View style={[styles.journalPaper]}>
         <Image source={require('../../assets/icons/noteRing.png')} style={{alignSelf:'center',position:'absolute',top:-10}}/>
           <ScrollView style={[globalStyle.container,{flex:1}]}>
+            {
+              journals.length > 0 ?
               <View>
                 {
                   journals.map((item)=>{
@@ -87,8 +89,14 @@ const handleDelete = async(id)=>{
                   })
                 }
               
+             </View>:
+             <View style={{alignItems:'center'}}>
+             <Image style={{width:300,height:300}} resizeMode='contain'source={require('../../assets/mascot/notfound.png')}  />
+             <Text style={{fontFamily:'Fredoka-Bold',fontSize:32,color:Colors.primary,marginTop:-40}}>Journals are Empty</Text>
+             <Text style={{fontFamily:'JosefinSlab-Bold', fontSize:20}}>Start writing a journal</Text>
+             <Button style={styles.button}><Text style={{color:'#fff',fontFamily:'Fredoka-Medium'}}>Write a Jounral</Text></Button>
              </View>
-             
+}
           </ScrollView>
       </View>
        <View>
@@ -135,6 +143,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     color:'#fff'
-  }
+  },
+   
   
 })

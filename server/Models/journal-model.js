@@ -27,6 +27,11 @@ const JournalSchema = new mongoose.Schema({
       enum:['draft','inProgress','analysisCompleted'],
       default:'draft'
     },
+     expEarned: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
      createdAt:{
         type:Date,
         default:Date.now
