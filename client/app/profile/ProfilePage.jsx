@@ -6,7 +6,7 @@ import authService from '../Service/auth'
 import { useDispatch } from 'react-redux'
 import { setToken, setUser } from '../redux/slices/authSlice'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useRouter } from 'expo-router'
+import { Link, useRouter } from 'expo-router'
 
 const ProfilePage = () => {
 const dispatch = useDispatch()
@@ -27,6 +27,7 @@ const handleLogout = async()=>{
 }
   return (
     <View >
+      <Link href={'../(tabs)/index'}>Go Back</Link>
       <Button mode='contained' onPress={()=>handleLogout()}>Log Out</Button>
     </View>
   )

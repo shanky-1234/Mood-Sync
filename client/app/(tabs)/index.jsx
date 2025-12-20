@@ -1,4 +1,4 @@
-import { Link, useRouter } from "expo-router";
+import { Link, useFocusEffect, useRouter } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { Appbar, Avatar, Badge, Button,ProgressBar } from "react-native-paper";
-
+import LottieView from 'lottie-react-native';
 import { Colors } from "../Constants/styleVariable";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -20,64 +20,64 @@ import RewardTrackerCard from '../components/RewardTrackerCard'
 import MoodCoach from '../components/MoodCoach'
 
 import getCurrentDate from "../utils/getCurrentDate";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setToken, setUser } from "../redux/slices/authSlice";
-
+import { fetchAndUpdateUser } from "../utils/fetchandupdatedata";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setCheckInInfo } from "../redux/slices/checkinSlice";
+
+import MoodSyncMascot from "../components/pages/MoodSyncMascot";
 
 export default function Index() {
   const [loggedInfo,setLoggedInfo] = useState(null) 
+  const [checkInInfos,setCheckInInfos] = useState(null)
   const [week, setWeek] = useState(null);
   const [month, setMonth] = useState(""); // Set The Current Month
   const [time,setTime] = useState(null)
   const router = useRouter()
  const dispatch = useDispatch()
+ 
 
   
-  const{userInfo,isLoading,userToken} = useSelector((state)=>state.auth) // Get from slices and states
+  const{userInfo} = useSelector((state)=>state.auth)
+  const {checkInInfo} = useSelector((state)=>state.checkIn) // Get from slices and states
 
   const date = getCurrentDate(); // Get The Current Date Information (Today)
   const fill =20
 
 
-  useEffect(() => {
-    const checkUser = async () =>{
-     try {
-      const storedUser = await AsyncStorage.getItem("UserData");
-      const storedToken = await AsyncStorage.getItem("UserToken");
+useFocusEffect(
+  useCallback(() => {
+    let isActive = true;
 
-      console.log("UserData (Raw):", storedUser);
-      console.log("UserToken (Raw):", storedToken);
+    const updateUser = async () => {
+      const user = await fetchAndUpdateUser(dispatch);
 
-      if (!storedUser || !storedToken) {
-        console.log("No user found in AsyncStorage");
+      if (!user && isActive) {
         router.replace("/authPages/Login");
-        return;
+      } else if (user && isActive) {
+        setLoggedInfo(user);
+
+     
+        if (user.checkInInfo) {
+          dispatch(setCheckInInfo(user.checkInInfo));
+        }
+
+        getMonth();
+        displayCurrentWeek();
+        getTime();
       }
+    };
 
-      const parsedUser = JSON.parse(storedUser);
-      console.log("Parsed User:", parsedUser);
+    updateUser();
 
-      // Update redux only if it’s empty (avoid unnecessary re-render)
-      if (!userInfo || !userToken) {
-        dispatch(setUser(parsedUser));
-        dispatch(setToken(storedToken));
-      }
+    return () => {
+      isActive = false;
+    };
+  }, [])
+);
 
-      // Now that user exists, continue
-      setLoggedInfo(parsedUser);
-      getMonth();
-      displayCurrentWeek();
-      getTime();
-    } catch (error) {
-      console.log("Error fetching AsyncStorage data:", error);
-      router.replace("/authPages/Login");
-    }
-    }
-     checkUser()
-   
-  }, []);
 
   // Function to get the current month
   const getMonth = () => {
@@ -117,7 +117,7 @@ export default function Index() {
     const date = new Date()
     const getTime = date.getHours()
     setTime(getTime)
-    console.log(getTime)
+   
   }
 
 
@@ -174,31 +174,11 @@ export default function Index() {
                       color: "white",
                     }}
                   >
-                    {userInfo.streaks.current}
+                    {userInfo?.streaks?.current}
                   </Text>
                 </View>
               </Badge>
-              <Badge style={style.badgeStyle}>
-                <View
-                  style={{
-                    alignContent: "center",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    flexDirection: "row",
-                  }}
-                >
-                  <MaterialCommunityIcons name="fire" size={24} color="white" />
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: "Fredoka-Bold",
-                      color: "white",
-                    }}
-                  >
-                    100
-                  </Text>
-                </View>
-              </Badge>
+              
             </View>
           </View>
           <View style={style.miniProgressCalender}>
@@ -255,46 +235,17 @@ export default function Index() {
             />
          
           </View>
-           <View style={{marginVertical:16,backgroundColor:'#fff',padding:16,borderRadius:12}}>
-            <Text style={{fontFamily:'Fredoka-Medium',color:Colors.primary,fontSize:20,textAlign:'center'}}>Your Level: {userInfo.currentLvl}</Text>
-              <ProgressBar progress={userInfo.currentExp/100} theme={{ colors: { primary: '#00E038' } }} style={{marginTop:8}}  />
+           <View style={{marginVertical:16,backgroundColor:'#fff',padding:16,borderRadius:12,shadowOpacity:4,elevation:2}}>
+            <Text style={{fontFamily:'Fredoka-Medium',color:Colors.primary,fontSize:20,textAlign:'center'}}>Your Level: {userInfo?.currentLvl}</Text>
+              <ProgressBar progress={userInfo?.currentExp/userInfo?.maxExp} theme={{ colors: { primary: '#00E038' } }} style={{marginTop:8}}  />
               <View>
-                <Text>Exp:{userInfo.currentExp}</Text>
+                <Text style={{fontFamily:'JosefinSlab-Bold'}}>{userInfo?.currentExp}/{userInfo?.maxExp}</Text>
               </View>
           </View>
           <View style={{ marginTop: 28, position:'relative' }}>
-            <Image source={require('../../assets/logos/nepalbackground.png')}
-            resizeMode="contain"
-            style={{width:500,height:500,position:'absolute',bottom:30,right:0,left:-50}}/>
-            <Image
-              source={require("../../assets/mascot/sad.png")}
-              resizeMode="contain"
-              style={{ justifyContent: "center", alignSelf: "center" }}
-              width={200}
-              height={200}
-            />
-            <View style={{ gap: 4, marginTop: 12 }}>
-              <Text
-                style={{
-                  fontFamily: "Fredoka-Regular",
-                  fontSize: 20,
-                  textAlign: "center",
-                  color: Colors.secondary,
-                }}
-              >
-                Youre Feeling
-              </Text>
-              <Text
-                style={{
-                  fontFamily: "Fredoka-Bold",
-                  fontSize: 28,
-                  textAlign: "center",
-                  color: Colors.primary,
-                }}
-              >
-                Sad And Tired
-              </Text>
-            </View>
+            <LottieView source={require('../../assets/Lottie/clouds.json')} autoPlay loop={true} style={{width:500,height:500,position:'absolute',bottom:30,right:0,left:-50}}/>
+            
+            <MoodSyncMascot mood={userInfo?.lastMoodScore || 55} energy={userInfo?.lastEnergyScore || 50}/>
             <Button style={style.button}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Text
@@ -334,7 +285,7 @@ export default function Index() {
                       color: "#fff",
                     }}
                   >
-                    01
+                    {checkInInfo?.countCheckIn}
                   </Text>
                   <Text
                     style={{
@@ -366,7 +317,7 @@ export default function Index() {
                       color: "#fff",
                     }}
                   >
-                    01
+                    {checkInInfo?.countCheckIn}
                   </Text>
                   <Text
                     style={{
@@ -408,7 +359,7 @@ export default function Index() {
        <AnimatedCircularProgress
   size={80}
   width={8}
-  fill={fill}
+  fill={userInfo?.lastMoodScore}
   tintColor={Colors.primary}
   onAnimationComplete={() => console.log('onAnimationComplete')}
   padding={8}
@@ -417,7 +368,7 @@ export default function Index() {
   backgroundColor="#fff" >
     {
       (fill)=>(
-        <Text style={{fontFamily:'Fredoka-Medium',fontSize:16, color:'#fff'}}>{fill}</Text>
+        <Text style={{fontFamily:'Fredoka-Medium',fontSize:16, color:'#fff'}}>{userInfo?.lastMoodScore}</Text>
       )
     }
     </AnimatedCircularProgress>
@@ -432,7 +383,7 @@ export default function Index() {
        <AnimatedCircularProgress
   size={80}
   width={8}
-  fill={fill}
+  fill={userInfo?.lastEnergyScore}
   tintColor='#5E4C4B'
   onAnimationComplete={() => console.log('onAnimationComplete')}
   padding={8}
@@ -441,7 +392,7 @@ export default function Index() {
   backgroundColor="#fff" >
     {
       (fill)=>(
-        <Text style={{fontFamily:'Fredoka-Medium',fontSize:16, color:'#fff'}}>{fill}</Text>
+        <Text style={{fontFamily:'Fredoka-Medium',fontSize:16, color:'#fff'}}>{userInfo?.lastEnergyScore}</Text>
       )
     }
     </AnimatedCircularProgress>
@@ -465,7 +416,7 @@ export default function Index() {
   backgroundColor="#fff" >
     {
       (fill)=>(
-        <Text style={{fontFamily:'Fredoka-Regular',fontSize:16, color:'#fff'}}>{fill}</Text>
+        <Text style={{fontFamily:'Fredoka-Regular',fontSize:16, color:'#fff'}}>{fill || 0}</Text>
       )
     }
     </AnimatedCircularProgress>

@@ -11,6 +11,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from './Service/api'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import PushnotificationManager from './components/PushnotificationManager'
+import {CheckInContextProvider} from './Context/CheckinContext'
+import {StoredCheckInProvider} from './Context/StoredCheckIn'
 
 
 // SplashScreen.preventAutoHideAsync();
@@ -119,6 +121,8 @@ useEffect(() => {
         name="(journal)"
         options={{headerShown: false}}
       />
+      <Stack.Screen name="completeAnalysis/analysisComplete"
+        options={{headerShown:false}}/>
     </Stack>
   );
 }
@@ -164,6 +168,8 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{flex:1}}>
     
     <Provider store={store}>
+      <CheckInContextProvider>
+      <StoredCheckInProvider>
       <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
           <PushnotificationManager>
@@ -171,6 +177,8 @@ export default function RootLayout() {
           </PushnotificationManager>
         </SafeAreaView>
       </SafeAreaProvider>
+      </StoredCheckInProvider>
+      </CheckInContextProvider>
     </Provider>
     </GestureHandlerRootView>
   );

@@ -83,6 +83,7 @@ const authService = {
       // Always clear local storage on logout
       await AsyncStorage.removeItem('UserData');
       await AsyncStorage.removeItem('UserToken');
+      await AsyncStorage.removeItem("CheckInData")
       
       return response.data;
     } catch (error) {
@@ -91,6 +92,8 @@ const authService = {
       // Clear storage even if request fails
       await AsyncStorage.removeItem('UserData');
       await AsyncStorage.removeItem('UserToken');
+      await AsyncStorage.removeItem("CheckInData")
+      
       
       throw error;
     }

@@ -169,7 +169,7 @@ const login = async(req,res)=>{
 
 const getUserData = async (req,res)=>{
     try{
-        const userData = await userModel.findOne(req._id)
+        const userData = await userModel.findById(req.user.userId)
         if(!userData){
             return res.status(403).json({
             success:false,

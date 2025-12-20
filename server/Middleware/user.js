@@ -15,7 +15,7 @@ const verifyToken = (req,res,next) =>{
         if (err){
         return  res.status(403).json({
             success:false,
-            message:'Invalid Token',
+            message:'Invalid Token in Auth',
             error:err.message,
         })
         }

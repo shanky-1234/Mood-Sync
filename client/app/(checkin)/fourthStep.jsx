@@ -7,10 +7,11 @@ import { useRouter } from "expo-router";
 import { Colors } from "../Constants/styleVariable";
 import Swiper from "react-native-swiper";
 import MultiSelectOptions from "../components/MultiSelectOptions";
+import { useCheckIn } from "../Context/CheckinContext";
 
 const fourthStep = () => {
   const [allSelections, setAllSelections] = useState({});
-  const [customInput,setCustomInput] = useState({})
+  const [customInput,setCustomInput] = useState('')
   const [snackBarVisible,setSnackBarVisible] = useState(false)
   const allSelectedValues = Object.values(allSelections).flat();
 console.log(allSelectedValues);
@@ -19,6 +20,12 @@ console.log(allSelectedValues);
   const handleLinking = () => {
     router.back();
   };
+  const {state,dispatch} = useCheckIn()
+
+  const handleCustomInput = (value)=>{
+    setCustomInput(value)
+    dispatch({type:'UPDATE_STEP4_EMOTIONCUSTOM',payload:value})
+  }
   const activities = [
   [
     { value: "happy", label: "Happy", icon: "emoticon-happy-outline", uncheckedColor: Colors.primary, style: { borderColor: Colors.primary } },
@@ -89,7 +96,7 @@ console.log(allSelectedValues);
         paginationStyle={{bottom:-10 }}
       >
         {pages.map((item, index) => (
-          <View>
+          <View key={index}>
             {item.map((items, index) => {
               return (
                 <MultiSelectOptions
@@ -103,6 +110,7 @@ console.log(allSelectedValues);
       .map(([_, vals]) => vals)
       .flat();
     const combined = [...otherValues, ...newValue];
+    dispatch({type:'UPDATE_STEP4_EMOTION',payload:combined})
     if (combined.length > 4) {
       setSnackBarVisible(true)
       return
@@ -120,7 +128,6 @@ console.log(allSelectedValues);
       <TextInput
                   value={customInput}
                   style={styles.input}
-                  secureTextEntry
                   mode="outlined"
                   outlineColor="transparent"
                   placeholder="Enter Custom Word"
@@ -129,7 +136,7 @@ console.log(allSelectedValues);
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
-                  onChangeText={(customInput) => setCustomInput(customInput)}
+                  onChangeText={(customInput)=>handleCustomInput(customInput)}
                 />
                   <Button style={styles.button} mode='contained' onPress={()=>router.push('./fifthStep')}><Text
                                                       style={{

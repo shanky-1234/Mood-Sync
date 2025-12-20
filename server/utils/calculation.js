@@ -74,8 +74,8 @@ const updateStreaks = (user)=>{
     today.setHours(0,0,0,0)
 
     if (!user.streaks.lastDate) {
-        user.streaks.current = 1;   
-        user.streaks.longest = 1;
+        user.streaks.current = 0;   
+        user.streaks.longest = 0;
         user.streaks.lastDate = today;
         return { increased: true, broken: false };
     }

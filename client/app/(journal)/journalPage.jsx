@@ -50,7 +50,7 @@ const JournalPage = () => {
     typingTimeout.current = setTimeout(() => {
       if (!journalId) return;
       autoSave();
-    }, 5000);
+    }, 8000);
   };
 
   useEffect(() => {

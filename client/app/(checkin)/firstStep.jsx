@@ -6,26 +6,31 @@ import { Button } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { Slider } from "@miblanchard/react-native-slider";
 import { Colors } from "../Constants/styleVariable";
+import {useCheckIn} from '../Context/CheckinContext'
 
 const firstStep = () => {
   const [sliderValue, setSliderValue] = useState(Number(0.5));
   const [emotion,setEmotion] = useState('neutral')
   const currentStep = 0;
   const router = useRouter();
+  const {state,dispatch} = useCheckIn()
+
   const handleLinking = () => {
     router.back();
   };
 
   const handleSlideValue = (value) =>{
-    setSliderValue(value)
+    const numeric = value[0]
+    setSliderValue(numeric)
+    dispatch({ type: "UPDATE_STEP1_MOOD", payload: numeric })
     // Handle Information Disply
-    sliderValue >= 0.3 && sliderValue < 0.5
+    numeric >= 0.3 && numeric < 0.5
                   ? setEmotion('sad')
-                  : sliderValue >= 0.5 && sliderValue < 0.7
+                  : numeric >= 0.5 && numeric < 0.7
                   ? setEmotion('neutral')
-                  : sliderValue >= 0.7 && sliderValue < 1
+                  : numeric >= 0.7 && numeric < 1
                   ? setEmotion('happy')
-                  : sliderValue == 1
+                  : numeric == 1
                   ? setEmotion('excellent')
                   : setEmotion('worst')
   }
@@ -117,8 +122,7 @@ feeling Today ?
               ? require("../../assets/icons/sliderVerygood.png")
               : require("../../assets/icons/sliderWorst.png")
           }
-          value={sliderValue}
-          
+          value={[sliderValue]}
           animateTransitions={true}
           animationType="spring"
           onValueChange={(value)=>handleSlideValue(value)}

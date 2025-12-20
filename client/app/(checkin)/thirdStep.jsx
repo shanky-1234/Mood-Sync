@@ -7,9 +7,10 @@ import { useRouter } from "expo-router";
 import { Colors } from "../Constants/styleVariable";
 import Swiper from "react-native-swiper";
 import MultiSelectOptions from "../components/MultiSelectOptions";
+import { useCheckIn } from "../Context/CheckinContext";
 const thirdStep = () => {
   const [allSelections, setAllSelections] = useState({});
-  const [customInput,setCustomInput] = useState({})
+  const [customInput,setCustomInput] = useState('')
   const [snackBarVisible,setSnackBarVisible] = useState(false)
   const allSelectedValues = Object.values(allSelections).flat();
 console.log(allSelectedValues);
@@ -18,6 +19,7 @@ console.log(allSelectedValues);
   const handleLinking = () => {
     router.back();
   };
+  const {state,dispatch} = useCheckIn()
   const activities = [
     [
       { value: "exercise", label: "Exercise", icon: "run",uncheckedColor:Colors.primary,  style:{borderColor:Colors.primary} },
@@ -54,6 +56,11 @@ console.log(allSelectedValues);
     setValue(newValue)
   }
   const pages = [activities.slice(0, 3), activities.slice(3, 6)];
+
+  const handleCustomInput = (value) =>{
+    setCustomInput(value)
+    dispatch({type:'UPDATE_STEP3_CAUSECUSTOM',payload:value})
+  }
   return (
     <PaperProvider>
     <View style={[styles.mainContainer]}>
@@ -119,12 +126,14 @@ console.log(allSelectedValues);
       .filter(([key]) => key != index)
       .map(([_, vals]) => vals)
       .flat();
+    
     const combined = [...otherValues, ...newValue];
     if (combined.length > 4) {
       setSnackBarVisible(true)
       return
     } // just stop if over limit
     setAllSelections(prev => ({ ...prev, [index]: newValue }));
+    dispatch({type:'UPDATE_STEP3_CAUSES',payload:combined})
   }}
 />
               );
@@ -137,7 +146,6 @@ console.log(allSelectedValues);
       <TextInput
                   value={customInput}
                   style={styles.input}
-                  secureTextEntry
                   mode="outlined"
                   outlineColor="transparent"
                   placeholder="Enter Custom Word"
@@ -146,7 +154,7 @@ console.log(allSelectedValues);
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
-                  onChangeText={(customInput) => setCustomInput(customInput)}
+                  onChangeText={(customInput)=>handleCustomInput(customInput)}
                 />
                   <Button style={styles.button} mode='contained' onPress={()=>router.push('./fourthStep')}><Text
                                     style={{

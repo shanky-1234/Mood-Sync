@@ -103,6 +103,9 @@ const createCheckIn = async (req,res) =>{
 
         const expToNextLevel = calculateExpToNextLevel(getUser.currentLvl)
 
+        getUser.maxExp = expToNextLevel
+        await getUser.save()
+
         return res.status(201).json({
             success:true,
             message:'Check In Successfully',
@@ -179,10 +182,24 @@ const getTodayCheckIns = async(req,res) =>{
 
         const latestCheckIns = await checkinModel.findOne({userId}).sort({timestamp:-1})
 
+        const date = new Date()
+
+        const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+        const countCheckIn = await checkinModel.countDocuments({
+        userId,
+      timestamp: { $gte: start, $lte: end },
+        })
+
         if(!latestCheckIns) {
             return res.status(201).json({
                 success:true,
                 hasCheckIn:false,
+                countCheckIn,
                 checkIn:latestCheckIns
             })
         }
@@ -190,7 +207,8 @@ const getTodayCheckIns = async(req,res) =>{
         return res.status(200).json({
             success:true,
             hasCheckIn:true,
-            checkIn:latestCheckIns
+            checkIn:latestCheckIns,
+            countCheckIn,
         })
 
     } catch (error) {

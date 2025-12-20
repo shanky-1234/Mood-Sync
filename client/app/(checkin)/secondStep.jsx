@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router'
 import { Image } from 'react-native'
 import { Slider } from '@miblanchard/react-native-slider'
 import { Colors } from '../Constants/styleVariable'
+import { useCheckIn } from '../Context/CheckinContext'
 
 const secondStep = () => {
   const currentStep=1
@@ -16,15 +17,18 @@ const secondStep = () => {
   }
   const [sliderValue,setSliderValue] = useState(Number(0))
   const [energyValue,setEnergyValue] = useState('Low')
+ const {state,dispatch} = useCheckIn()
+
   const handleSliderValue = (value) =>{
     setSliderValue(value[0])
-    sliderValue >= 0.1 && sliderValue < 0.3
+    dispatch({type:'UPDATE_STEP2_ENERGY',payload:value[0]})
+    value >= 0.1 && value < 0.3
                   ? setEnergyValue('Low Energy')
-                  : sliderValue >= 0.3 && sliderValue < 0.5
+                  : value >= 0.3 && value < 0.5
                   ? setEnergyValue('Moderate Energy')
-                  : sliderValue >= 0.5 && sliderValue < 0.8
+                  : value >= 0.5 && value < 0.8
                   ? setEnergyValue('Good Energy')
-                  : sliderValue >= 0.8
+                  : value >= 0.8
                   ? setEnergyValue('Fully Energized')
                   : setEnergyValue('No Energy')
 

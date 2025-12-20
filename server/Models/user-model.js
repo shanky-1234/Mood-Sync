@@ -42,6 +42,10 @@ const UserSchema = new mongoose.Schema({
         default:0,
         min:0
     },
+    maxExp:{
+        type:Number,
+        default:100
+    },
     currentLvl:{
         type:Number,
         default:1,
