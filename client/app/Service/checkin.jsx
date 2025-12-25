@@ -30,6 +30,7 @@ getTodayChekIn: async()=>{
 getCheckIn: async()=>{
     try {
         const response = await api.get('/checkIn/getCheckInHistory')
+        console.log(response.data)
         return response.data
     } catch (error) {
          console.error(error)

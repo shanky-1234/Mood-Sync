@@ -1,12 +1,32 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import {useState,useEffect} from 'react'
 import { Stack, useRouter } from 'expo-router'
 import { Colors } from '../Constants/styleVariable'
 import { Button } from 'react-native-paper'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import getCurrentDate from '../utils/getCurrentDate'
+import { useAudioPlayer } from 'expo-audio'
 
 const Layout = () => {
+  const [play,setPlay ] = useState(true)
+    const player = useAudioPlayer(require('../../assets/audio/ambient.mp3'))
+    const playBackground = async() =>{
+          try {
+            console.log('Play')
+            
+            player.volume = 0.2
+            player.play()
+          
+          } catch (error) {
+           console.log("Error loading sound:", error);
+          }
+        }
+        useEffect(()=>{
+          if(play){
+            playBackground()
+          }
+          return
+        },[])
     const date = getCurrentDate()
     const router = useRouter()
   return (

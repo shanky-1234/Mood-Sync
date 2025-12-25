@@ -55,6 +55,16 @@ const jounralService = {
              const errorMessage = error.response?.data?.message || 'Failed Updating Journal';
       throw new Error(errorMessage);
         }
+    },
+    getTodayJournal:async()=>{
+        try {
+             const response = await api.delete(`journal/getTodayJournal`)
+            return response.data
+        } catch (error) {
+            console.error(error)
+             const errorMessage = error.response?.data?.message || 'Failed Updating Journal';
+      throw new Error(errorMessage);
+        }
     }
     
 }

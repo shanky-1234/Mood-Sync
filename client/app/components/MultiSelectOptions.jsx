@@ -26,7 +26,7 @@ const MultiSelectOptions = ({ items, limit, onChange, value }) => {
       borderColor: Colors.primary,
       borderWidth: 1.5, 
       fontFamily:'Fredoka-Bold',
-       backgroundColor: value.includes(item.value) ? Colors.primary : '#FCE9E7' 
+       backgroundColor: value?.includes(item.value) ? Colors.primary : '#FCE9E7' 
             
     }
   }))}

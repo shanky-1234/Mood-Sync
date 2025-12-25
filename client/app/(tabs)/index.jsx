@@ -18,7 +18,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import RewardTrackerCard from '../components/RewardTrackerCard'
 import MoodCoach from '../components/MoodCoach'
-
+import { useAudioPlayer } from "expo-audio";
 import getCurrentDate from "../utils/getCurrentDate";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,9 +39,27 @@ export default function Index() {
  const dispatch = useDispatch()
  
 
-  
+   const player = useAudioPlayer(require('../../assets/audio/start.mp3'))
+      const playBackground = async() =>{
+            try {
+              console.log('Play')
+              
+              player.volume = 0.2
+              player.play()
+            
+            } catch (error) {
+             console.log("Error loading sound:", error);
+            }
+          }
+          useEffect(()=>{
+          
+            playBackground()
+            
+          
+          },[])
   const{userInfo} = useSelector((state)=>state.auth)
-  const {checkInInfo} = useSelector((state)=>state.checkIn) // Get from slices and states
+  const {checkInInfo} = useSelector((state)=>state.checkIn)
+  const {journalInfo} = useSelector((state)=>state.journal) // Get from slices and states
 
   const date = getCurrentDate(); // Get The Current Date Information (Today)
   const fill =20
@@ -126,7 +144,7 @@ useFocusEffect(
     <>
       <ScrollView style={{ flex: 1, }} nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
         <Appbar.Header style={[style.headerStyle]} statusBarHeight={8}>
-          <TouchableOpacity style={{ marginHorizontal: 28 }} onPress={()=>router.replace('/profile/ProfilePage')}>
+          <TouchableOpacity style={{ marginHorizontal: 28 }} onPress={()=>router.replace('/(profile)/ProfilePage')}>
             <View style={{ borderRadius: 50 }}>
               <Image
                 source={require("../../assets/icons/default-profile-pic.png")}
@@ -285,7 +303,7 @@ useFocusEffect(
                       color: "#fff",
                     }}
                   >
-                    {checkInInfo?.countCheckIn}
+                    {journalInfo?.countJournal}
                   </Text>
                   <Text
                     style={{

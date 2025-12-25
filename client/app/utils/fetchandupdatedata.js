@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setUser, setToken } from "../redux/slices/authSlice";
 import { setCheckInInfo } from "../redux/slices/checkinSlice";
 import api from "../Service/api";
+import { setJournalInfo } from "../redux/slices/journalSlice";
 
 export const getCurrentStreak = (streaks) => {
   if (!streaks || !streaks.lastDate) return 0;
@@ -36,6 +37,8 @@ export const fetchAndUpdateUser = async (dispatch) => {
       dispatch(setToken(null));
       await AsyncStorage.removeItem("UserData");
       await AsyncStorage.removeItem("UserToken");
+      await AsyncStorage.removeItem("CheckInData")
+       await AsyncStorage.removeItem("JournalData")
       
       return null;
     }
@@ -45,6 +48,10 @@ export const fetchAndUpdateUser = async (dispatch) => {
     });
 
     const getCheckInToday = await api.get('checkIn/getCheckInToday')
+
+    const getJournalToday = await api.get('journal/getTodayJournal')
+
+    const journalCount =  getJournalToday.data
 
     const checkInTodayDataCount = getCheckInToday.data
 
@@ -60,8 +67,11 @@ export const fetchAndUpdateUser = async (dispatch) => {
     dispatch(setUser(freshUser));
     dispatch(setToken(storedToken));
     dispatch(setCheckInInfo(checkInTodayDataCount))
+    dispatch(setJournalInfo(journalCount))
+
     await AsyncStorage.setItem("UserData", JSON.stringify(freshUser));
     await AsyncStorage.setItem("CheckInData",JSON.stringify(checkInTodayDataCount))
+       await AsyncStorage.setItem("JournalData",JSON.stringify(journalCount))
 
 
     // STEP 4 — Return clean user

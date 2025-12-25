@@ -63,12 +63,11 @@ const UserSchema = new mongoose.Schema({
         default:0,
         min:0
     },
-    totalJournals:[{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'Journal',
+    totalJournals:{
+        type:Number,
         default:0,
         min:0
-    }],
+    },
     lastCheckIn:{
         type:Date,
         default:null,

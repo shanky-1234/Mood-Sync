@@ -1,4 +1,6 @@
+const journalModel = require('../Models/journal-model')
 const Journal =  require('../Models/journal-model')
+const User = require('../Models/user-model')
 
 const getAllJournal = async (req,res)=>{
     try {
@@ -9,6 +11,12 @@ const getAllJournal = async (req,res)=>{
             message:'Journal is Empty'
         })
         }
+
+        const total = journals.length
+    await User.findByIdAndUpdate(
+      req.user.userId,
+      { totalJournals: total }
+    );
         return res.status(200).json({
             success:true,
             message:'Journaling All',
@@ -68,6 +76,7 @@ const createJournal = async (req, res) => {
 
         await newJournal.populate('userId','fullname gender email age')
 
+        
         return res.status(200).json({
             success: true,
             message: 'New Journal Entry',
@@ -150,5 +159,56 @@ const deleteJournal = async (req,res)=>{
     }
 }
 
+const getTodayJournal = async(req,res) =>{
+    try {
+        const userId = req.user.userId
 
-module.exports = {getAllJournal, getJournalById, createJournal, updateJournal,deleteJournal}
+      
+
+        const date = new Date()
+
+        const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+        const countJournal = await journalModel.countDocuments({
+        userId,
+      createdAt: { $gte: start, $lte: end },
+        })
+
+          const latestJournal = await journalModel.findOne({
+      userId,
+      createdAt: { $gte: start, $lte: end }
+    }).sort({ createdAt: -1 });
+
+
+        if(!countJournal) {
+            return res.status(201).json({
+                success:true,
+                hasJournal:false,
+                countJournal,
+                journal:latestJournal
+            })
+        }
+
+        return res.status(200).json({
+            success:true,
+            hasJournal:true,
+            journal:latestJournal,
+            countJournal,
+        })
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            success:false,
+            message:"Internal Server Error",
+            error
+        })
+    }
+}
+
+
+module.exports = {getAllJournal, getJournalById, createJournal, updateJournal,deleteJournal,getTodayJournal}

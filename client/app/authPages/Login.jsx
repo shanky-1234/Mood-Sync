@@ -253,9 +253,9 @@ const Login = () => {
                   marginTop: 8,
                   fontFamily: "Fredoka-Regular",
                 }}
-                href={"../(tabs)/"}
+                href={"./OnboardingAuth/"}
               >
-                Home
+                What is Mood Sync ?
               </Link>
             </View>
           </View>

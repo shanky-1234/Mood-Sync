@@ -1,12 +1,34 @@
 import { Image, ImageBackground, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Colors } from "../Constants/styleVariable";
 import { Button } from "react-native-paper";
 import { globalStyle } from "../Constants/globalStyles";
 import { useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
+import {useAudioPlayer} from 'expo-audio'
 
 const OnboardingAuth = () => {
   const router = useRouter();
+  const [play,setPlay ] = useState(true)
+  const player = useAudioPlayer(require('../../assets/audio/ambient.mp3'))
+  const playBackground = async() =>{
+        try {
+          console.log('Play')
+          
+          player.volume = 0.2
+          player.play()
+        
+        } catch (error) {
+         console.log("Error loading sound:", error);
+        }
+      }
+      useEffect(()=>{
+        if(play){
+          playBackground()
+        }
+        return
+      },[])
+
   return (
     <View style={{ flex: 1, backgroundColor: "#FFEDED" }}>
       <View style={styles.topContainer}>
@@ -28,10 +50,7 @@ const OnboardingAuth = () => {
             style={{ width: "100%", height: "100%", zIndex: 4 }}
           />
           <View style={styles.backgroundImage}>
-            <Image
-              source={require("../../assets/logos/NepalBackgorund.png")}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+              <LottieView source={require('../../assets/Lottie/clouds.json')} autoPlay loop={true} style={{width:500,height:500,position:'absolute',bottom:30,right:0,left:-50}}/>
           </View>
         </View>
       </View>
@@ -99,6 +118,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: 3,
     left: -100,
+    bottom:-120
   },
   button: {
     marginTop: 24,

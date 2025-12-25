@@ -158,7 +158,7 @@ const getCheckInHistory = async (req,res) =>{
         }
 
         const totalCheckIns = await checkinModel.countDocuments({userId})
-
+        
         return res.status(200).json({
             success:true,
             checkIn,

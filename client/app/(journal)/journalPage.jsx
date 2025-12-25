@@ -11,12 +11,14 @@ import jounralService from "../Service/journal";
 import { setLoading } from "../redux/slices/authSlice";
 import { Button } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { PermissionsAndroid, Platform,Linking } from "react-native";
+import  { start,stop, subscribe ,cancel} from 'react-native-rn-voicekit'
 const JournalPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.auth);
-
+  const [isListening,setIsListening] = useState(false)
   const [visible,setVisible] = useState(false)
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -28,8 +30,68 @@ const JournalPage = () => {
 
   const params = useLocalSearchParams();
   const journalId = params.journalId;
-
   
+  // //For Voice
+const startVoice = async () => {
+  if (Platform.OS === 'android') {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      {
+        title: "Microphone Permission",
+        message: "We need access to your microphone for speech to text",
+        buttonPositive: "OK",
+      }
+    );
+    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+      Alert.alert(
+        "Permission required",
+        "Microphone access is required to use voice mode.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Open Settings", onPress: () => Linking.openSettings() }
+        ]
+      );
+      return;
+    }
+  }
+
+  setIsListening(true);
+
+  try {
+    await start('en-US')
+  } catch (error) {
+    console.error(error);
+    setIsListening(false)
+  }
+
+  setIsListening(false);
+};
+
+useEffect(()=>{
+ const unsub = subscribe({
+  onSpeechStart:()=>console.log('speech started'),
+   onSpeechEnd: () => setIsListening(false),
+   onSpeechResults: (results) => {setContent(prev => prev + " " + results.join(" ")) 
+    setIsListening(false)
+   },
+      onSpeechPartialResults: (results) => console.log('Partial:', results.join(' ')),
+    onSpeechError: (err) => {
+      console.error('Speech Error',err);
+      setIsListening(false);
+    },
+ })
+ return unsub
+},[])
+
+  const stopVoice = () => {
+  stop();
+  setIsListening(false);
+};
+
+const cancelVoice = () => {
+  cancel();
+  setIsListening(false);
+};
 
   const handleDelete = async(id)=>{
   console.log(id)
@@ -211,7 +273,13 @@ const JournalPage = () => {
             borderTopColor: "#ccc",
             justifyContent: "center",
             },globalStyle.container]}>
+            <View style={{flexDirection:'row',justifyContent:'space-between'}}>
             <Button style={[styles.button,{backgroundColor:color}]}><Text style={{fontFamily:'Fredoka-Medium',color:'#fff',gap:12}}>Analysis<MaterialCommunityIcons name="star-four-points" size={16} color='#fff' /></Text></Button>
+              
+                <Button mode="contained" style={[styles.button, { backgroundColor: "#888" }]} onPress={cancelVoice}>
+            Cancel Voice
+          </Button><Button style={[styles.button,{backgroundColor:'#505050ff'}]} onPress={isListening ? stopVoice : startVoice}><Text style={{fontFamily:'Fredoka-Medium',color:'#fff',gap:12}}>{isListening ? "Listening..." : "Voice Mode"}<FontAwesome name="microphone" size={16} color="#fff" /></Text></Button>
+      </View>
       </View>
       <Portal>
                           <Dialog visible={visible} onDismiss={()=>setVisible(false)} >

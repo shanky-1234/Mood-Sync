@@ -121,8 +121,13 @@ useEffect(() => {
         name="(journal)"
         options={{headerShown: false}}
       />
+       <Stack.Screen
+        name="(profile)"
+        options={{headerShown: false}}
+      />
       <Stack.Screen name="completeAnalysis/analysisComplete"
         options={{headerShown:false}}/>
+        
     </Stack>
   );
 }

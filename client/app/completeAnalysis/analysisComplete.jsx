@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, Image } from "react-native";
 import { Badge, ProgressBar, Button,ActivityIndicator } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useRouter } from 'expo-router'
-import { useEffect } from "react";
+import { useEffect,useState} from "react";
 import { useCheckIn } from "../Context/CheckinContext";
 import { globalStyle } from "../Constants/globalStyles";
 import { Colors } from "../Constants/styleVariable";
@@ -11,16 +11,38 @@ import LottieView from 'lottie-react-native';
 import { useStoredCheckIn } from "../Context/StoredCheckIn";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../redux/slices/authSlice";
-
+import { useAudioPlayer } from "expo-audio";
 
 
 export default function analysisComplete() {
+
   const router = useRouter()
   const {checkInResult} = useStoredCheckIn()
   const {isLoading} = useSelector(state=>state.auth)
   const dispatch = useDispatch()
   const { state } = useCheckIn();
+
+    const [play,setPlay ] = useState(true)
+      const player = useAudioPlayer(require('../../assets/audio/complete.mp3'))
+      const playBackground = async() =>{
+            try {
+              console.log('Play')
+              
+              player.volume = 0.5
+              player.play()
+            
+            } catch (error) {
+             console.log("Error loading sound:", error);
+            }
+          }
+          useEffect(()=>{
+            if(play){
+              playBackground()
+            }
+            return
+          },[])
   useEffect(() => {
+
       loadCheckInResult()
     console.log(state);
     console.log(checkInResult)

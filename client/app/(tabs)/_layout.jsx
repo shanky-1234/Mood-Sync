@@ -131,7 +131,7 @@ const Layout = () => {
       />
       <Tabs.Screen
         name="Stats"
-        options={{ title: "Mood Chart", headerShown: false,tabBarIcon:({color,size,focused})=>{
+        options={{ title: "Mood Calender", headerShown: true, headerShadowVisible:false,headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary},headerStyle:{backgroundColor:'#FBE7E5'} ,tabBarIcon:({color,size,focused})=>{
           return( focused ? 
             
             <Ionicons name="stats-chart" size={size} color={color} />:

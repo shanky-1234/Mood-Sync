@@ -3,13 +3,14 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import React, { useState } from 'react'
 import { Colors } from '../Constants/styleVariable'
 import { useRouter } from 'expo-router'
+import { useAudioPlayer } from 'expo-audio'
 
 
 const Notes = ({title,content,createdAt,color,id}) => {
 
 const [visible,setVisible]=useState(false)
 
-
+  const player= useAudioPlayer(require('../../assets/audio/book.mp3'))
     const router = useRouter()
     const getDateandTime =(dateString) =>{
   const d = new Date(dateString)
@@ -30,6 +31,9 @@ const [visible,setVisible]=useState(false)
 }
 
 const handleJournals = (id) =>{
+  player.play()
+  
+  
   router.push({
     pathname:'journalPage',
     params:{
@@ -37,6 +41,7 @@ const handleJournals = (id) =>{
     }
   })
 }
+
   return (
     
    <TouchableOpacity style={[styles.note,{backgroundColor:color}]} onPress={()=>handleJournals(id)}>
