@@ -5,6 +5,7 @@ import {
   Text,
   View,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Colors } from "../Constants/styleVariable";
 import { globalStyle } from "../Constants/globalStyles";
@@ -20,57 +21,92 @@ import { KeyboardAvoidingView } from "react-native";
 import { useRef, useState } from "react";
 import authService from "../Service/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading, setToken, setUser } from "../redux/slices/authSlice";
-import * as WebBrowser from "expo-web-browser";
-import * as Google from 'expo-auth-session/providers/google'
-import * as AuthSession from 'expo-auth-session'
+import { setIsGoogleAccount, setLoading, setToken, setUser } from "../redux/slices/authSlice";
+
 import { useEffect } from "react";
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  isSuccessResponse,
+  isErrorWithCode,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 
 
 
-WebBrowser.maybeCompleteAuthSession()
+GoogleSignin.configure({
+  webClientId:process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+})
 
 const Login = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [onSecure,setOnSecure] = useState(true)
   const [visible, setVisible] = useState(false);
   const [dialougeTitle, setDialougeTitle] = useState("");
   const [dialougeContent, setDialougeContent] = useState("");
+  const [isExtraInfo,setIsExtraInfo] = useState(false)
   const { isLoading } = useSelector((state) => state.auth);
+  const [userInfo,setUserInfo] = useState([])
   const dispatch = useDispatch();
   
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_ID,
-    redirectUri: AuthSession.makeRedirectUri({
-      scheme: Platform.OS === "android" || Platform.OS === "ios" ? "com.shashank.moodsync" : undefined,
-      useProxy: Platform.OS === "web",
-    }),
-  });
+ const handleGoogleSignIn = async () => {
+  try {
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    
+    const user = await GoogleSignin.signIn();
+    console.log("Google Sign-In response:", user); // log raw response
 
-
-  useEffect(()=>{
-    console.log(AuthSession.makeRedirectUri({scheme:"com.shashank.moodsync"}))
-    if(response?.type === 'success'){
-      const {authentication} = response
-      console.log('token:',authentication.accessToken)
-    }else if (response?.type === "error") {
-       console.log("Google Auth Error:", response.error);
-    }
-  },[response])
-
-  const fetchUserInfo = async(token)=>{
-    try {
-      const res = await fetch("https://www.googleapis.com/userinfo/v2/me",{
-        headers:{Authorization:`Bearer ${token}`}
+    if(user.data !=null){
+    setUserInfo(user.data.user); 
+    console.log(userInfo)
+    const response = await authService.googleAuth(user.data.user.id,user.data.user.name,user.data.user.email)
+    console.log('auth',response)
+    if(response.needsExtraInfo){
+      const {googleId,fullname,email} = response.user
+     
+      router.replace({
+        pathname:'./GoogleSign',
+        params:{
+         email: response.user.email,
+    fullname: response.user.fullname,
+    googleId: response.user.googleId,
+        }
       })
-      const user = await res.json()
-      console.log('user',user)
-    } catch (error) {
-      console.error(error)
+    }else{
+       dispatch(setUser(response.user))
+        dispatch(setToken(response.generate))
+        dispatch(setIsGoogleAccount(response.googleSignIn))
+        console.log("loggedinsuccessfully");
+        console.log(response)
+        router.replace("/(tabs)");
+    }
+    }
+    
+  } catch (error) {
+    console.error("Google Sign-In Error:", error);
+    if (isErrorWithCode(error)) {
+      switch (error.code) {
+        case statusCodes.IN_PROGRESS:
+          Alert.alert('Sign in is already in progress');
+          break;
+        case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+          Alert.alert('Google Play Services not available');
+          break;
+        case statusCodes.SIGN_IN_CANCELLED:
+          Alert.alert('Sign in was cancelled');
+          break;
+        default:
+          Alert.alert('Google Sign-In Error');
+      }
+    } else {
+      Alert.alert("Unexpected error");
     }
   }
+};
+
+
  
   const handleLogin = async () => {
   
@@ -148,13 +184,13 @@ const Login = () => {
                 <TextInput
                   value={password}
                   style={styles.input}
-                  secureTextEntry
+                  secureTextEntry={onSecure}
                   mode="outlined"
                   outlineColor="transparent"
                   placeholder="Enter Your Password"
                   placeholderTextColor="#A29999"
                   left={<TextInput.Icon icon="lock" color="#A29999" />}
-                  right={<TextInput.Icon icon="eye" color="#A29999" />}
+                  right={onSecure ? <TextInput.Icon icon="eye" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)} /> :<TextInput.Icon icon="eye-off" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)} /> }
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
@@ -190,11 +226,12 @@ const Login = () => {
               >
                 Forgot Password ?
               </Button>
+              
             </View>
 
             <Text style={{ textAlign: "center", marginTop: 20 }}>OR</Text>
             <Button
-              onPress={()=>promptAsync({useProxy:true})}
+              onPress={handleGoogleSignIn}
               mode="outlined"
               style={styles.buttonOutlined}
               labelStyle={{

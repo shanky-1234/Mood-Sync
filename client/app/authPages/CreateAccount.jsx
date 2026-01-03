@@ -6,20 +6,27 @@ import {
   StyleSheet,
   Text,
   View,
+  Alert
 } from "react-native";
 import { Colors } from "../Constants/styleVariable";
 import { globalStyle } from "../Constants/globalStyles";
 import { Button, TextInput, Portal,Dialog, PaperProvider, HelperText} from "react-native-paper";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { KeyboardAvoidingView } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useState } from "react";
 import authService from "../Service/auth";
 import {useDispatch, useSelector} from 'react-redux'
-import { setLoading } from "../redux/slices/authSlice";
-
-
+import { setIsGoogleAccount, setLoading, setToken, setUser } from "../redux/slices/authSlice";
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  isSuccessResponse,
+  isErrorWithCode,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import { useRoute } from "@react-navigation/native";
 
 const CreateAccount = () => {
  const [visible, setVisible] = useState(false)
@@ -34,9 +41,66 @@ const CreateAccount = () => {
   const [email,setEmail] = useState('')
   const [password,setPassword]=useState('')
   const [confirmPassword,setConfirmPassword] = useState('')
-
+   const [onSecure,setOnSecure] = useState(true)
+    const [onSecureTwo,setOnSecureTwo] = useState(true)
   const {isLoading} = useSelector((state)=>state.auth)
   const dispatch = useDispatch()
+  const router = useRouter()
+
+const handleGoogleSignIn = async () => {
+  try {
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    
+    const user = await GoogleSignin.signIn();
+    console.log("Google Sign-In response:", user); // log raw response
+
+    // directly update state
+     
+  
+    const response = await authService.googleAuth(user.data.user.id,user.data.user.name,user.data.user.email)
+    console.log('auth',response)
+    if(response.needsExtraInfo){
+      const {googleId,fullname,email} = response.user
+     
+      router.replace({
+        pathname:'./GoogleSign',
+        params:{
+         email: response.user.email,
+    fullname: response.user.fullname,
+    googleId: response.user.googleId,
+        }
+      })
+    }else{
+       dispatch(setUser(response.user))
+        dispatch(setToken(response.generate))
+        dispatch(setIsGoogleAccount(response.googleSignIn))
+        console.log("loggedinsuccessfully");
+        console.log(response)
+        router.replace("/(tabs)");
+    }
+  
+    
+  } catch (error) {
+    console.error("Google Sign-In Error:", error);
+    if (isErrorWithCode(error)) {
+      switch (error.code) {
+        case statusCodes.IN_PROGRESS:
+          Alert.alert('Sign in is already in progress');
+          break;
+        case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+          Alert.alert('Google Play Services not available');
+          break;
+        case statusCodes.SIGN_IN_CANCELLED:
+          Alert.alert('Sign in was cancelled');
+          break;
+        default:
+          Alert.alert('Google Sign-In Error');
+      }
+    } else {
+      Alert.alert("Unexpected error");
+    }
+  }
+};
 
 
   const handleRegisterAccount = async () =>{
@@ -249,13 +313,13 @@ const CreateAccount = () => {
               <View>
                 <TextInput
                   style={styles.input}
-                  secureTextEntry
+                  secureTextEntry={onSecure}
                   mode="outlined"
                   outlineColor="transparent"
                   placeholder="Enter Password (Min:8 Char)"
                   placeholderTextColor="#A29999"
                   left={<TextInput.Icon icon="lock" color="#A29999" />}
-                  right={<TextInput.Icon icon="eye" color="#A29999" />}
+                  right={onSecure ? <TextInput.Icon icon="eye" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)}/> : <TextInput.Icon icon="eye-off" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)}/>}
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
@@ -266,13 +330,13 @@ const CreateAccount = () => {
               <View>
                 <TextInput
                   style={styles.input}
-                  secureTextEntry
+                  secureTextEntry={onSecureTwo}
                   mode="outlined"
                   outlineColor="transparent"
                   placeholder="Confirm Password"
                   placeholderTextColor="#A29999"
                   left={<TextInput.Icon icon="lock" color="#A29999" />}
-                  right={<TextInput.Icon icon="eye" color="#A29999" />}
+                  right={onSecureTwo ? <TextInput.Icon icon="eye" color="#A29999" onPress={()=>setOnSecureTwo(prev=>!prev)}/> : <TextInput.Icon icon="eye-off" color="#A29999" onPress={()=>setOnSecureTwo(prev=>!prev)}/>}
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
@@ -312,6 +376,7 @@ const CreateAccount = () => {
             </View>
             <Text style={{ textAlign: "center", marginTop: 20 }}>OR</Text>
             <Button
+            onPress={handleGoogleSignIn}
               mode="outlined"
               style={styles.buttonOutlined}
               labelStyle={{

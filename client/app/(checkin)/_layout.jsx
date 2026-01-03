@@ -6,10 +6,14 @@ import { Button } from 'react-native-paper'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import getCurrentDate from '../utils/getCurrentDate'
 import { useAudioPlayer } from 'expo-audio'
+import { useSelector } from 'react-redux'
 
 const Layout = () => {
   const [play,setPlay ] = useState(true)
+  const {isSound} = useSelector(state=>state.audio)
     const player = useAudioPlayer(require('../../assets/audio/ambient.mp3'))
+
+    if(isSound){
     const playBackground = async() =>{
           try {
             console.log('Play')
@@ -27,6 +31,8 @@ const Layout = () => {
           }
           return
         },[])
+      }
+     
     const date = getCurrentDate()
     const router = useRouter()
   return (

@@ -109,6 +109,10 @@ useEffect(() => {
         name="authPages/OnboardingAuth"
         options={{ headerShown: false }}
       />
+          <Stack.Screen
+        name="authPages/GoogleSign"
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="profile/ProfilePage"
         options={{ headerShown: false }}

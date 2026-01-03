@@ -7,45 +7,58 @@ require('dotenv').config()
 
 const googleAuth = async (req,res) =>{
     try{
-        const {token} = req.body
-
-        if(!token){
-            return res.status(400).json({
-                success:false,
-                message:'Missing Google Token'
-            })
-        }
-
-        //Verifying Google Token 
-        const ticket = await client.verifyIdToken({
-            idToken:token,
-            audience:process.env.GOOGLE_CLIENT_ID
-        })
-
-        const payload = ticket.getPayload()
-        const {sub,email,name} = payload
-
-        const user = await userModel.findOne({email})
-        if(!user){
-            user = await userModel.create({
-                fullname:name,
-                email,
-                googleId:sub,
-            })
-        }
-
-        const tokens={
-        userId:getUser._id,
-        email:getUser.email,
+        const {googleId, email, fullname, age, gender} = req.body
+        let user = await userModel.findOne({googleId})
+        if(user){
+             const token={
+        userId:user._id,
+        email:user.email,
     }
-
-        const generate = jwt.sign(tokens,process.env.JWTSECUREKEY,{expiresIn:'1d'})
-         return res.status(200).json({
-      success: true,
-      message: `Google login successful! Welcome ${user.fullname}`,
-      generate,
-      user,
-    });
+    const generate = jwt.sign(token,process.env.JWTSECUREKEY,{expiresIn:'2d'})
+    return res.status(200).json({
+        success:true,
+        message:'Succesfully Logged In From Google',
+        googleSignIn:true,
+        generate,
+        user,
+        needsExtraInfo:false
+    })
+        }
+        if(!age || !gender){
+            return res.status(200).json({
+                success:false,
+                needsExtraInfo:true,
+                message:'Field Missing',
+                user:{
+                    googleId,fullname,email
+                }
+            })
+        }
+        user = await userModel.findOne({
+            email
+        })
+        if(user){
+            user.googleId = googleId
+            await user.save()
+        }
+        else{
+             user = await userModel.create({
+  googleId, email, fullname, age, gender, password: null
+});
+        }
+             const token={
+        userId:user._id,
+        email:user.email,
+    }
+    const generate = jwt.sign(token,process.env.JWTSECUREKEY,{expiresIn:'2d'})
+    return res.status(200).json({
+        success:true,
+        message:'Succesfully Logged In From Google',
+        googleSignIn:true,
+        generate,
+        user,
+        needsExtraInfo:false
+    })
     }
     catch(error){
          return res.status(500).json({

@@ -23,6 +23,26 @@ const authService = {
     }
   },
 
+  googleAuth:async(googleId,fullname,email,age = null,gender =null) =>{
+    try {
+      const response = await api.post('auth/google',{
+        googleId,fullname,email,age,gender
+      })
+      console.log('Login response:', response.data);
+      if (response.data.success === true && response.data.generate) {
+        await AsyncStorage.setItem('UserToken', response.data.generate);
+        await AsyncStorage.setItem('UserData', JSON.stringify(response.data.user));
+        await AsyncStorage.setItem('isGoogle',JSON.stringify(response.data.googleSignIn))
+        console.log('Token and user data saved to AsyncStorage');
+      }
+      return response.data
+    } catch (error) {
+       console.error('Registration error:', error);
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      throw new Error(errorMessage);
+    }
+  },
+
   login: async (email, password) => {
     try {
       console.log('Attempting login...');
@@ -68,7 +88,6 @@ const authService = {
       }
     }
   },
-
   logout: async () => {
     try {
       // Use api instance with relative path

@@ -2,10 +2,11 @@
   "expo": {
     "name": "MoodSync",
     "slug": "moodsync",
+    "owner": "shashanktuladhar11",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logos/moodSyncLogo.png",
-    "scheme": "moodsync",
+    "scheme": "com.shashank.moodsync",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -62,6 +63,6 @@
         "projectId": "83a1614c-02c9-440d-84d7-899e44cd107f"
       }
     },
-    "owner": "shashanktuladhar11"
+    
   }
 }

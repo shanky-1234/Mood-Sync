@@ -36,10 +36,12 @@ export default function Index() {
   const [month, setMonth] = useState(""); // Set The Current Month
   const [time,setTime] = useState(null)
   const router = useRouter()
+  const {isSound} = useSelector(state=>state.audio)
  const dispatch = useDispatch()
  
 
    const player = useAudioPlayer(require('../../assets/audio/start.mp3'))
+    if(isSound){
       const playBackground = async() =>{
             try {
               console.log('Play')
@@ -54,9 +56,9 @@ export default function Index() {
           useEffect(()=>{
           
             playBackground()
-            
           
           },[])
+        }
   const{userInfo} = useSelector((state)=>state.auth)
   const {checkInInfo} = useSelector((state)=>state.checkIn)
   const {journalInfo} = useSelector((state)=>state.journal) // Get from slices and states

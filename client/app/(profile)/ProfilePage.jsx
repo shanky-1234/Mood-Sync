@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View,Image, TouchableOpacity,} from 'react-native'
 import {React,useCallback, useEffect, useState,} from 'react'
 import { useFocusEffect } from 'expo-router'
-import { Button,Badge } from 'react-native-paper'
+import { Button,Badge,Switch } from 'react-native-paper'
 import axios from 'axios'
 import authService from '../Service/auth'
 import { useDispatch,useSelector } from 'react-redux'
-import { setToken, setUser } from '../redux/slices/authSlice'
+import { setIsGoogleAccount, setToken, setUser } from '../redux/slices/authSlice'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Link, useRouter } from 'expo-router'
 import { globalStyle } from '../Constants/globalStyles'
@@ -13,21 +13,41 @@ import { Colors } from '../Constants/styleVariable'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { fetchAndUpdateUser } from '../utils/fetchandupdatedata'
 import { getMoodState } from '../utils/getMoodState'
+import { setAudio } from '../redux/slices/audioSlice'
+import GoogleSign from '../authPages/GoogleSign'
+import { GoogleSignin } from '@react-native-google-signin/google-signin'
 
 
 const ProfilePage = () => {
 const dispatch = useDispatch()
+const [switches,  setSwitches] = useState(true)
 const router = useRouter()
 const [loggedInfo,setLoggedInfo] = useState()
  
-  const{userInfo} = useSelector((state)=>state.auth)
+const {isSound} = useSelector((state)=>state.audio)
+  const{userInfo,isGoogleAccount} = useSelector((state)=>state.auth)
   const {checkInInfo} = useSelector((state)=>state.checkIn) // Get from slices and states
 
+  const toggleSwitch = ()=>{
+    setSwitches(prev=>!prev)
+    dispatch(setAudio(switches))
+    
+  }
 
 
 
 const handleLogout = async()=>{
  try {
+    if(isGoogleAccount){
+      await GoogleSignin.revokeAccess()
+      await GoogleSignin.signOut()
+       AsyncStorage.removeItem('UserData')
+      AsyncStorage.removeItem('UserToken')
+      AsyncStorage.removeItem('isGoogle')
+        dispatch(setUser(null))
+      dispatch(setToken(''))
+      dispatch(setIsGoogleAccount(false))
+    }
     const response = await authService.logout()
     if(response){
       dispatch(setUser(null))
@@ -160,14 +180,23 @@ useFocusEffect(
                         </Badge>
         </View>
         <View style={{marginTop:24}}>
+          <View style={[style.card, {alignContent:'center',alignItems:'center',justifyContent:'space-between',flexDirection:'row'}]}>
+          <Text style={style.cardText}>Audio</Text>
+          <Switch value={isSound} color={Colors.primary} onValueChange={toggleSwitch}/>
+          </View>
+        </View>
+        <View style={{marginTop:24}}>
+          { !isGoogleAccount &&
           <TouchableOpacity style={style.card}>
       <View style={{flexDirection:"row", alignItems:'center',width:'100%', gap:12,}}>
+    
      <Text style={style.cardText}><Text>Update Password</Text></Text>
     
     </View>
      
     </TouchableOpacity>
-    <View style={{marginTop:120}}>
+}
+    <View style={{marginTop:40}}>
      <Button
                     mode="contained"
                     style={[style.button]}

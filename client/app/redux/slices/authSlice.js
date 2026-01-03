@@ -5,7 +5,8 @@
         isLoading:true,
         userInfo:null,
         userToken:null,
-        isError:null
+        isError:null,
+        isGoogleAccount:false
     }
 
     export const authSlice = createSlice({
@@ -24,9 +25,12 @@
             setToken:(state,action)=>{
                 state.userToken = action.payload
             },
+            setIsGoogleAccount:(state,action)=>{
+                state.isGoogleAccount = action.payload
+            }
 
         }
     })
 
-    export const {setLoading,setError,setUser,setToken} = authSlice.actions
+    export const {setLoading,setError,setUser,setToken,setIsGoogleAccount} = authSlice.actions
     export default authSlice.reducer

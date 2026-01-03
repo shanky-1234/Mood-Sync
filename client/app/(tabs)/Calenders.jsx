@@ -56,6 +56,7 @@ const CalenderManager = () => {
         dispatch(setLoading(false))
       }
     }
+
   useEffect(() => {
     dispatch(setLoading(true));
     getJournal();
@@ -96,7 +97,7 @@ const combinedData = [...normalizeCheckins,...normalizeJournals]
 const filteredDate = !isLoading ? 
 combinedData.filter((data)=>getLocalDateOnly(data.createdAt) === date):[]
 const sortByTime = filteredDate.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
- const markedJournalDates = journal.reduce((acc,j)=>{
+ const markedJournalDates = combinedData.reduce((acc,j)=>{
   const date = getLocalDateOnly(j.createdAt)
   const today = getToday()
   if (date === today) return acc

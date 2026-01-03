@@ -16,7 +16,7 @@ router.get('/verify',verifyToken,(req,res)=>{
     user: req.user,
     })
 })
-router.get('/google',googleAuth)
+router.post('/google',googleAuth)
 
 
 module.exports = router
