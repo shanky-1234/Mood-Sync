@@ -71,6 +71,10 @@ const UserSchema = new mongoose.Schema({
         type:Date,
         default:null,
     },
+    lastJournal:{
+        type:Date,
+        default:null
+    },
     lastMoodScore:{
         type:Number,
         default:null,
@@ -82,6 +86,10 @@ const UserSchema = new mongoose.Schema({
         default:null,
         min:0,
         max:100
+    },
+    lastSolution:{
+        type:String,
+        trim:true
     },
     createdAt:{
         type:Date,

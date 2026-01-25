@@ -65,7 +65,19 @@ const jounralService = {
              const errorMessage = error.response?.data?.message || 'Failed Updating Journal';
       throw new Error(errorMessage);
         }
+    },
+    analyzeJournal:async(id)=>{
+        try{
+            const response = await api.post(`journal/analyseJournal/${id}`)
+            return response.data
+        }
+        catch(error){
+            console.error(error)
+             const errorMessage = error.response?.data?.message || 'Failed Updating AI';
+      throw new Error(errorMessage);
+        }
     }
+
     
 }
 
