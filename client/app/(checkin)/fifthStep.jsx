@@ -45,7 +45,12 @@ const fifthStep = () => {
       if(respone.success === true){
         console.log(respone)
         setCheckInResult(respone)
-        router.replace('../completeAnalysis/analysisComplete')
+        router.push({pathname:'../completeAnalysis/analysisComplete',
+          params:{
+            type:'checkIn',
+            checkInId :respone.checkIn._id
+          }
+        })
       }
       console.log('not working')
     } catch (error) {

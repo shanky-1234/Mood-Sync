@@ -101,7 +101,7 @@ console.log(allSelectedValues);
               return (
                 <MultiSelectOptions
   items={items}
-  index={index}
+  key={index}
   limit={4}
   value={allSelections[index] || []}
   onChange={(newValue) => {

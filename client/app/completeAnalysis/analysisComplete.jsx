@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import { Badge, ProgressBar, Button,ActivityIndicator } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect,useState} from "react";
 import { useCheckIn } from "../Context/CheckinContext";
 import { globalStyle } from "../Constants/globalStyles";
@@ -12,15 +12,20 @@ import { useStoredCheckIn } from "../Context/StoredCheckIn";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../redux/slices/authSlice";
 import { useAudioPlayer } from "expo-audio";
+import checkInService from "../Service/checkin";
+import { UseStoredJournalData } from "../Context/StoredJournal";
 
 
 export default function analysisComplete() {
 
   const router = useRouter()
+  const [result,setResult] = useState(null  )
   const {checkInResult} = useStoredCheckIn()
+  const {journalResult} = UseStoredJournalData()
   const {isLoading} = useSelector(state=>state.auth)
   const dispatch = useDispatch()
   const { state } = useCheckIn();
+  const {type,checkInId ,journalId} = useLocalSearchParams()
 
     const [play,setPlay ] = useState(true)
       const player = useAudioPlayer(require('../../assets/audio/complete.mp3'))
@@ -42,18 +47,18 @@ export default function analysisComplete() {
             return
           },[])
   useEffect(() => {
-
-      loadCheckInResult()
-    console.log(state);
-    console.log(checkInResult)
-  }, [state]);
-
-  const loadCheckInResult = async() =>{
-    if(!checkInResult){
-      dispatch(setLoading(true))
+    if(!type) return
+    dispatch(setLoading(true))
+    if(type === "checkIn"){
+      setResult(checkInResult)
+      dispatch(setLoading(false))
     }
-    dispatch(setLoading(false))
-  }
+    if(type === "journal"){
+      setResult(journalResult)
+      dispatch(setLoading(false))
+    }
+  }, [type,checkInResult,journalResult]);
+
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: Colors.primary }}>
@@ -75,7 +80,7 @@ export default function analysisComplete() {
             color: Colors.secondary,
           }}
         >
-          Check In
+          {type === "checkIn" ? "Check-In" : "Jounrnal Analysis"}
         </Text>
         <Text
           style={{
@@ -131,7 +136,7 @@ export default function analysisComplete() {
                   color: "white",
                 }}
               >
-                {checkInResult?.gamification?.checkInStreak?.current}
+                {result?.gamification?.checkInStreak?.current || result?.gamification?.journalStreak?.current}
               </Text>
             </View>
           </Badge>
@@ -157,11 +162,11 @@ export default function analysisComplete() {
           <ProgressBar
             theme={{ colors: { primary: "#00E038" } }}
             style={{ marginTop: 8 }}
-            progress={checkInResult?.gamification?.currentExp/checkInResult?.gamification?.expToNextLevel}
+            progress={result?.gamification?.currentExp/result?.gamification?.expToNextLevel}
             
           />
           <View>
-            <Text style={{ fontFamily: "JosefinSlab-Bold" }}>{checkInResult?.gamification?.currentExp}/{checkInResult?.gamification?.expToNextLevel}</Text>
+            <Text style={{ fontFamily: "JosefinSlab-Bold" }}>{result?.gamification?.currentExp}/{result?.gamification?.expToNextLevel}</Text>
           </View>
         </View>
         <View>
@@ -172,6 +177,11 @@ export default function analysisComplete() {
             mode="contained"
             style={style.button}
             labelStyle={{ fontFamily: "Fredoka-Regular" }}
+            onPress={()=>router.push({pathname:'./Analysis',
+              params:{
+                type:type
+              }
+            })}
           >
             <Text>Analysis</Text>
           </Button>

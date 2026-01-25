@@ -13,6 +13,9 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import PushnotificationManager from './components/PushnotificationManager'
 import {CheckInContextProvider} from './Context/CheckinContext'
 import {StoredCheckInProvider} from './Context/StoredCheckIn'
+import {StoredJournalProvider} from './Context/StoredJournal'
+import {Button} from 'react-native-paper'
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 
 // SplashScreen.preventAutoHideAsync();
@@ -131,6 +134,13 @@ useEffect(() => {
       />
       <Stack.Screen name="completeAnalysis/analysisComplete"
         options={{headerShown:false}}/>
+      
+       <Stack.Screen name="completeAnalysis/Analysis"
+        options={{headerShown:true, headerTitle:'Analysis', headerShadowVisible:false, headerStyle:{backgroundColor:'#fff'},headerRight:()=>(
+           <Button style={{marginTop:28}}><AntDesign name="close" size={24} color={Colors.primary} onPress={()=>router.replace('/(tabs)')}/></Button>
+        ),headerTitleAlign:'center',headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary},
+        }} />
+        
         
     </Stack>
   );
@@ -179,6 +189,7 @@ export default function RootLayout() {
     <Provider store={store}>
       <CheckInContextProvider>
       <StoredCheckInProvider>
+      <StoredJournalProvider>
       <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
           <PushnotificationManager>
@@ -186,6 +197,7 @@ export default function RootLayout() {
           </PushnotificationManager>
         </SafeAreaView>
       </SafeAreaProvider>
+      </StoredJournalProvider>
       </StoredCheckInProvider>
       </CheckInContextProvider>
     </Provider>

@@ -7,8 +7,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    device_map="auto",    # automatically use GPU if available
-    torch_dtype=torch.float16,  # use half precision for VRAM efficiency
+    device_map="auto",   
+    torch_dtype=torch.float16, 
 )
 generator = pipeline( "text-generation",
     model=model,

@@ -70,7 +70,7 @@ export default function Index() {
 useFocusEffect(
   useCallback(() => {
     let isActive = true;
-
+    
     const updateUser = async () => {
       const user = await fetchAndUpdateUser(dispatch);
 
@@ -98,6 +98,23 @@ useFocusEffect(
   }, [])
 );
 
+ const getDateandTime =(dateString) =>{
+  const d = new Date(dateString)
+
+  const weekDay = d.toLocaleString("en-US",{weekday:"short"})
+  const day = d.getDate();
+  const month = d.toLocaleString("en-US",{month:"short"})
+  const year = d.getFullYear();
+
+  let hours = d.getHours();
+  let minutes = d.getMinutes().toString().padStart(2, "0");
+
+  // convert to 12-hour format
+  const ampm = hours >= 12 ? "" : "";
+  hours = hours % 12 || 12;
+
+  return `${weekDay} ${day} ${month}, ${year} ${hours}:${minutes} ${ampm}`;
+}
 
   // Function to get the current month
   const getMonth = () => {
@@ -105,6 +122,8 @@ useFocusEffect(
     setMonth(month);
   };
 
+
+  
   //Function to get the current week and display dates accoring to it
   const displayCurrentWeek = () => {
     const today = new Date();
@@ -474,7 +493,7 @@ useFocusEffect(
               Mood Coach
             </Text>
             <View style={{marginTop:16}}>
-              <MoodCoach />
+              <MoodCoach solution={userInfo?.lastSolution} date={getDateandTime(userInfo?.updatedAt)}/>
             </View>
           </View>
         </View>

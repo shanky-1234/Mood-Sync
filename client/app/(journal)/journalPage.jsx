@@ -29,6 +29,8 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { PermissionsAndroid, Platform, Linking } from "react-native";
 import { start, stop, subscribe, cancel } from "react-native-rn-voicekit";
+import {UseStoredJournalData} from '../Context/StoredJournal'
+
 const JournalPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -40,8 +42,10 @@ const JournalPage = () => {
   const [color, setColor] = useState("");
   const [fetchingJournal, setFetchingJournal] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
+  const [journalData, setJournalData] = useState(null)
   const typingTimeout = useRef(null);
+  const {setJournalResult} = UseStoredJournalData()
+  const [analyzing, setAnalyzing] = useState(false)
 
   const params = useLocalSearchParams();
   const journalId = params.journalId;
@@ -95,12 +99,15 @@ await start();
 useEffect(() => {
   const unsub = subscribe({
     onSpeechStart: () => {
-      console.log("🎙️ Speech started");
+      console.log("Speech started");
     },
 
     onSpeechResults: (results) => {
-      setContent(prev => prev + " " + results.join(" "));
-      console.log(content)
+      setContent(prev => {
+    const updated = prev + " " + results.join(" ");
+    console.log("Transcribed:", updated);
+    return updated;
+  });
     },
 
     onSpeechEnd: () => {
@@ -151,10 +158,11 @@ useEffect(() => {
 
   const smartAutoSave = () => {
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
+     if (journalData?.status === 'analysisCompleted') return;
     typingTimeout.current = setTimeout(() => {
       if (!journalId) return;
       autoSave();
-    }, 8000);
+    }, 2500);
   };
 
   useEffect(() => {
@@ -176,6 +184,7 @@ useEffect(() => {
         setTitle(res.journal.title);
         setContent(res.journal.content || "");
         setColor(res.journal.color || Colors.primary);
+        setJournalData(res.journal)
       }
     } catch (e) {}
 
@@ -183,8 +192,8 @@ useEffect(() => {
   };
 
   const autoSave = async () => {
-    if (!journalId) return false;
-
+    if (!journalId) return true;
+    if(journalData?.status === "analysisCompleted") return true
     const payload = {
       title: title || "",
       content: content || "",
@@ -209,7 +218,7 @@ useEffect(() => {
     if (saved) {
       dispatch(setLoading(false));
       setIsSaving(false);
-      router.back();
+      router.replace('/(tabs)/MyJournals');
       return;
     }
 
@@ -221,6 +230,39 @@ useEffect(() => {
       { text: "Exit Without Saving", onPress: () => router.back() },
     ]);
   };
+
+  const analyzeAI =async(id)=>{
+    console.log('AI Analysis')
+    if (!id) return
+    try {
+      console.log('AI Analysis started')
+      setAnalyzing(true)
+      dispatch(setLoading(true))
+
+      await autoSave()
+
+
+      const res = await jounralService.analyzeJournal(id)
+
+      if(res.success){
+        setJournalData(res.getJournal)
+        setJournalResult(res)
+        router.push({
+          pathname:'../completeAnalysis/analysisComplete',
+          params:{
+            type:'journal',
+            journalId:id}
+        })
+      }
+      
+    } catch (error) {
+      console.error('An error Occured')
+    }
+    finally{
+       dispatch(setLoading(false));
+    setAnalyzing(false);
+    }
+  }
 
   useEffect(() => {
     const backAction = () => {
@@ -236,11 +278,11 @@ useEffect(() => {
 
   useEffect(() => {
     return () => {
-      if (!isSaving && journalId) autoSave();
+      if (!isSaving && journalId && journalData?.status !== 'analysisCompleted') autoSave();
     };
-  }, [title, content, color]);
+  }, [title, content, color, journalData?.status]);
 
-  if (fetchingJournal) {
+  if (fetchingJournal || analyzing || !journalData) {
     return (
       <View
         style={{
@@ -294,6 +336,7 @@ useEffect(() => {
               value={title}
               mode="outlined"
               multiline
+              disabled={analyzing || journalData.status === 'analysisCompleted'}
               style={{ outlineWidth: 0, marginTop: 24, backgroundColor: color }}
               outlineStyle={{ borderWidth: 0 }}
               textColor="white"
@@ -314,6 +357,7 @@ useEffect(() => {
             <TextInput
               mode="outlined"
               multiline
+              disabled={analyzing || journalData.status === 'analysisCompleted'}
               style={{ outlineWidth: 0, marginTop: 24, backgroundColor: color }}
               outlineStyle={{ borderWidth: 0 }}
               textColor="white"
@@ -359,11 +403,13 @@ useEffect(() => {
                 <FontAwesome name="microphone" size={16} color="#fff" />
               </Text>
             </Button>
-            <Button style={[styles.button, { backgroundColor: color }]}>
+            <Button onPress={()=>analyzeAI(journalId ? journalId : journalData._id)} disabled={analyzing || journalData.status === 'analysisCompleted'} style={[styles.button, { backgroundColor: analyzing || journalData.status === 'analysisCompleted' ? '#5d5d5d' :Colors.primary }]}>
               <Text
                 style={{ fontFamily: "Fredoka-Medium", color: "#fff", gap: 12 }}
               >
-                Analysis
+                {
+                  analyzing || journalData.status == "analysisCompleted" ? "Disabled" : "Analysis"
+                }
                 <MaterialCommunityIcons
                   name="star-four-points"
                   size={16}

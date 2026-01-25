@@ -16,6 +16,8 @@ import { getMoodState } from '../utils/getMoodState'
 import { setAudio } from '../redux/slices/audioSlice'
 import GoogleSign from '../authPages/GoogleSign'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
+import Fontisto from '@expo/vector-icons/Fontisto';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
 const ProfilePage = () => {
@@ -179,10 +181,22 @@ useFocusEffect(
                           </View>
                         </Badge>
         </View>
-        <View style={{marginTop:24}}>
+        <View style={{marginTop:24,gap:8}}>
           <View style={[style.card, {alignContent:'center',alignItems:'center',justifyContent:'space-between',flexDirection:'row'}]}>
-          <Text style={style.cardText}>Audio</Text>
+         <View style={{flexDirection:'row', gap:8}}>
+          <MaterialIcons name="audiotrack" size={16} color={Colors.primary} />
+          <Text style={[style.cardText]}>Audio</Text>
+          </View>
           <Switch value={isSound} color={Colors.primary} onValueChange={toggleSwitch}/>
+          </View>
+          <View style={[style.card, {alignContent:'center',alignItems:'center',justifyContent:'space-between',flexDirection:'row'}]}>
+            <View style={{flexDirection:'row', gap:8}}>
+            <Fontisto name="bell-alt" size={16} color={Colors.primary} />
+          <Text style={[style.cardText]}>Notification</Text>
+          <Link href={'../completeAnalysis/Analysis'}>Analysis</Link>
+          <Link href={'../completeAnalysis/analysisComplete'}>Analysis</Link>
+          </View>
+          <Switch color={Colors.primary}/>
           </View>
         </View>
         <View style={{marginTop:24}}>
@@ -196,7 +210,7 @@ useFocusEffect(
      
     </TouchableOpacity>
 }
-    <View style={{marginTop:40}}>
+    <View style={{marginTop:4,marginBottom:16}}>
      <Button
                     mode="contained"
                     style={[style.button]}

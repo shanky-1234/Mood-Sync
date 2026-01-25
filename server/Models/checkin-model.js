@@ -72,12 +72,27 @@ const CheckInSchema = new mongoose.Schema({
             type:String,
             default:'1.0' // Without AO
         },
+         analysis:{
+            solution:{ 
+                type:String,
+                default:''
+            },
+            analysisDate: {
+                type:Date,
+                default:Date.now
+            },
+            modelVersion:{
+                type:String,
+                default:'mistral'
+            } 
+        },
         timestamp:{
             type:Date,
             default:Date.now,
             required:true,
             index:true
-        }
+        },
+       
 },{timestamps:true})
 
 CheckInSchema.index({userId:1,timestamp:-1})

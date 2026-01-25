@@ -3,7 +3,7 @@ import React from 'react'
 import { Card } from 'react-native-paper'
 import { Colors } from '../Constants/styleVariable'
 
-const MoodCoach = () => {
+const MoodCoach = ({solution,date}) => {
   return (
     <Card mode='contained' style={styles.card}>
         <View style={{flexDirection:'row',alignItems:'center', gap:12}}>
@@ -14,8 +14,11 @@ const MoodCoach = () => {
         <View style={styles.triangle} />
         <View style={styles.speechBubble}>
           <Text style={styles.speechText}>
-            Your mood score today is <Text style={{fontFamily:'Fredoka-Bold'}}> 32/100 </Text>. Work stress and lack of sleep are the main triggers. So get some quick rest and sleep
+            {solution || 'Hi i am MoodCoach I will help you feel better'}
           </Text>
+        </View>
+        <View style={{justifyContent:'center', alignContent:'center',alignItems:'center',marginTop:12}}>
+        <Text>{date || ''}</Text>
         </View>
         </View>
     </Card>

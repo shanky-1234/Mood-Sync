@@ -1,6 +1,13 @@
+const gamificationModel = require('../Models/gamification-model')
 const journalModel = require('../Models/journal-model')
 const Journal =  require('../Models/journal-model')
+const userModel = require('../Models/user-model')
 const User = require('../Models/user-model')
+const { journalAnalysis } = require('../Service/journalAnalysis')
+const { calculateJournalExp, updateLevel, calculateExpToNextLevel, updateStreaks } = require('../utils/calculation')
+
+
+
 
 const getAllJournal = async (req,res)=>{
     try {
@@ -92,38 +99,66 @@ const createJournal = async (req, res) => {
     }
 };
 
-const updateJournal = async(req,res)=>{
-    try {
-        const {title, content, color} = req.body
+const updateJournal = async (req, res) => {
+  try {
+    const { title, content, color } = req.body;
 
-        const updateJournal = await Journal.findOneAndUpdate(
-            {_id:req.params.id,userId:req.user.userId},
-            {$set:{...(title && {title}) ,content,  ...(color && { color }), status:content ? 'inProgress':'draft'}},
-            {
-                new:true, runValidators:true
-            },
-        ).populate('userId','fullname gender email age')
+    const updatedJournal = await Journal.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: req.user.userId,
+        status: { $ne: "analysisCompleted" } // 🔒 hard lock
+      },
+      [
+        {
+          $set: {
+            ...(title !== undefined && { title }),
+            ...(content !== undefined && { content }),
+            ...(color !== undefined && { color }),
 
-        if(!updateJournal){
-            return res.status(403).json({
-                success:false,
-                message:'Journal Not Found or You dont have the permission for it'
-            })
+            status: {
+              $cond: {
+                if: {
+                  $and: [
+                    { $eq: ["$status", "draft"] },
+                    { $gt: [{ $strLenCP: content || "" }, 0] }
+                  ]
+                },
+                then: "inProgress",
+                else: "$status"
+              }
+            }
+          }
         }
+      ],
+      {
+        new: true,
+        runValidators: true
+      }
+    ).populate("userId", "fullname gender email age");
 
-        return res.status(200).json({
-            success:true,
-            message:'Journal Updated Successfully!',
-            newJournal:updateJournal
-        })
-    } catch (error) {
-         console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: 'Some Error Occurred'
-        });
+    if (!updatedJournal) {
+      return res.status(403).json({
+        success: false,
+        message: "Journal not found or locked"
+      });
     }
-}
+
+    return res.status(200).json({
+      success: true,
+      message: "Journal Updated Successfully!",
+      newJournal: updatedJournal
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Some Error Occurred"
+    });
+  }
+};
+
 
 const deleteJournal = async (req,res)=>{
     try {
@@ -210,5 +245,144 @@ const getTodayJournal = async(req,res) =>{
     }
 }
 
+const analyzeJournal = async (req,res)=>{
+    try{
+    const id= req.params.id
 
-module.exports = {getAllJournal, getJournalById, createJournal, updateJournal,deleteJournal,getTodayJournal}
+    const user = await userModel.findById(req.user.userId)
+
+    if(!id) {
+        return res.status(404).json({
+            success:false,
+            message:"Journal Not Found"
+        })
+    }
+
+    let getJournal = await journalModel.findOne({_id:id,userId:req.user.userId})
+    
+    if(!getJournal){
+        return res.status(404).json({
+    success: false,
+    message: "Journal Not Found"
+  });
+    }
+
+
+    if (getJournal.status === 'analyzing'){
+        return res.status(403).json({
+            success:false,
+            message:'Analysis on Process'
+        })
+    }
+    if (!getJournal.content || getJournal.content.trim() === '') {
+        return res.status(403).json({
+            success:false,
+            message:'No Content To analyze'
+        })
+    }
+    if (getJournal.status === 'analysisCompleted'){
+        return res.status(403).json({
+            success:false,
+            message:'Analysis Done! Cannot Analyze'
+        })
+    }
+
+    getJournal.status = 'analyzing'
+    await getJournal.save()
+
+    const journalCountDays =await journalModel.countDocuments({
+        userId:req.user.userId,
+        status:'analysisCompleted',
+        updatedAt: { $gte: Date.now() }
+    })
+
+    const firstJournalToday =journalCountDays ===0
+    const analysis = await journalAnalysis(getJournal.content)
+    if(!analysis){
+        getJournal.status ='inProgress'
+        await getJournal.save()
+    }
+    getJournal.analysis = analysis
+    getJournal.status = 'analysisCompleted'
+    await getJournal.save()
+
+    const today = new Date()
+        const todayDate = new Date(today)
+        todayDate.setHours(0,0,0,0)
+
+    const lastDate = user.streaks.lastDate 
+    lastDate ? new Date(user.streaks.lastDate).setHours(0,0,0,0):null
+
+     let streakInfo = {increased:false,broken:false}
+    const streakAlreadyUpdated = lastDate === today.getTime()
+
+    if (!streakAlreadyUpdated) {
+  streakInfo = updateStreaks(user)
+}
+
+    const expEarned = calculateJournalExp(getJournal,user.streaks.current)
+
+    const beforeData={
+        level: user.currentLvl,
+  totalExp: user.currentExp,
+  totalStreak: user.streaks.current,
+    }
+
+    user.currentExp +=expEarned
+
+    const levelUp = updateLevel(user)
+
+    user.totalJournals += 1
+    user.lastMoodScore = getJournal.analysis.scores.moodScore;
+    user.lastEnergyScore = getJournal.analysis.scores.energyScore
+    user.lastJournal = today
+    user.lastSolution = getJournal.analysis.solution
+
+    await user.save()
+
+    await gamificationModel.create({
+  userId: user._id,
+  activityType: 'journal',
+  sourceId: getJournal._id,
+  expEarned,
+  useStateActivity: beforeData,
+  levelUp,
+  newLevel: levelUp ? user.currentLvl : null,
+  timestamp: new Date()
+})
+
+    user.maxExp = calculateExpToNextLevel(user.currentLvl)
+    await user.save()
+
+
+    return res.status(201).json({
+        success:true,
+        message:'Journal Analysis Completed',
+        getJournal,
+        gamification: {
+    expEarned,
+    previousExp: beforeData.totalExp,
+    currentExp: user.currentExp,
+    currentLvl: user.currentLvl,
+    expToNextLevel: user.maxExp,
+    levelUp,
+    journalStreak: {
+      current: user.streaks.current,
+      longest: user.streaks.longest,
+      increased: streakInfo.increased,
+      broken: streakInfo.broken,
+      streakUpdated: firstJournalToday
+    }
+}
+    })
+    }
+    catch(error){
+        console.error(error)
+        return res.status(500).json({
+            success:false,
+            message:'Error'
+        })    }
+}
+
+
+module.exports = {getAllJournal, getJournalById, createJournal, updateJournal,deleteJournal,getTodayJournal,analyzeJournal}
