@@ -11,13 +11,13 @@ import CheckInCard from "../components/CheckInCard";
 import checkInService from "../Service/checkin";
 import { useRouter } from "expo-router";
 
-const CalenderManager = () => {
+const FullAnalysis = () => {
   const dispatch = useDispatch();
+  const router = useRouter()
   const { isLoading } = useSelector((state) => state.auth);
   const [journal, setJournal] = useState([]);
   const [checkIns,setCheckIns] = useState([])
   const [date, setDate] = useState(getToday()); // Selected date
-  const router = useRouter()
 
   // Get today's date in local timezone
   function getToday() {
@@ -124,8 +124,6 @@ const sortByTime = filteredDate.sort((a, b) => new Date(a.createdAt) - new Date(
   };
 
 
-
-  // Format date for display
   const formatDate = (dateString) => {
     const dateObj = new Date(dateString);
     return dateObj.toLocaleDateString("en-US", {
@@ -137,40 +135,6 @@ const sortByTime = filteredDate.sort((a, b) => new Date(a.createdAt) - new Date(
 console.log(normalizeCheckins)
   return (
     <View style={[{ flex: 1, backgroundColor: "#FBE7E5" }, globalStyle.container]}>
-      <Calendar
-      markingType="custom"
-        onDayPress={(day) => handleDate(day.dateString)}
-        style={{ borderRadius: 8 }}
-        enableSwipeMonths={true}
-        hideExtraDays={true}
-        markedDates={{
-          [date]: {
-            selected: true,
-            selectedColor: Colors.secondary,
-          },
-          [getToday()]: {
-            selected: true,
-            marked: true,
-            selectedColor: Colors.primary,
-            customStyles: {
-              borderColor: Colors.secondary,
-              borderWidth: 2,
-            }
-          },
-          ...markedJournalDates
-        }}
-        theme={{
-          textDayFontFamily: "Fredoka-Medium",
-          textMonthFontFamily: "Fredoka-Bold",
-          textMonthFontSize: 20,
-          todayTextColor: Colors.primary,
-          textDayHeaderFontFamily: "Fredoka-Medium",
-          todayButtonFontFamily: "Fredoka-Bold",
-          todayBackgroundColor: Colors.primary,
-          todayButtonTextColor: "#fff",
-        }}
-      />
-
       <View style={{ marginTop: 20, flex: 1 }}>
         <Text style={{ fontSize: 24, fontFamily: "Fredoka-Medium", color: Colors.primary }}>
           {date === getToday() ? "Today" : formatDate(date)}
@@ -201,7 +165,7 @@ console.log(normalizeCheckins)
                hour: "2-digit",
   minute: "2-digit",
             })}
-             handlePress={()=>router.push({pathname:'../completeAnalysis/Analysis',params:{
+            handlePress={()=>router.push({pathname:'./Analysis',params:{
                 type:'checkIn',
             checkInId:item.data._id
             }})}
@@ -231,8 +195,8 @@ console.log(normalizeCheckins)
       </View>
     </View>
   );
-};
+}
 
-export default CalenderManager;
+export default FullAnalysis
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({})

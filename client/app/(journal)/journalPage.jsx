@@ -46,7 +46,7 @@ const JournalPage = () => {
   const typingTimeout = useRef(null);
   const {setJournalResult} = UseStoredJournalData()
   const [analyzing, setAnalyzing] = useState(false)
-
+  const [isLoaded,setIsLoaded]=useState(false)
   const params = useLocalSearchParams();
   const journalId = params.journalId;
   const isStartingRef = useRef(false)
@@ -171,11 +171,20 @@ useEffect(() => {
 
   const loadJournal = async () => {
     if (params.title && params.color) {
-      setTitle(params.title);
-      setColor(params.color);
-      setContent("");
-      setFetchingJournal(false);
-      return;
+      const draftJournal = {
+    _id: journalId || null,
+    title: params.title,
+    content: "",
+    color: params.color,
+    status: "draft"
+  };
+      setTitle(draftJournal.title);
+  setContent("");
+  setColor(draftJournal.color);
+  setJournalData(draftJournal); // ✅ THIS WAS MISSING
+  setIsLoaded(true);
+  setFetchingJournal(false);
+  return 
     }
 
     try {
@@ -185,6 +194,7 @@ useEffect(() => {
         setContent(res.journal.content || "");
         setColor(res.journal.color || Colors.primary);
         setJournalData(res.journal)
+        setIsLoaded(true)
       }
     } catch (e) {}
 
@@ -192,6 +202,7 @@ useEffect(() => {
   };
 
   const autoSave = async () => {
+    if (!isLoaded) return true;
     if (!journalId) return true;
     if(journalData?.status === "analysisCompleted") return true
     const payload = {
@@ -276,9 +287,21 @@ useEffect(() => {
     return () => handler.remove();
   }, [title, content, color]);
 
+   const showAnalysis = (id)=>{
+        router.push({
+          pathname:'../completeAnalysis/Analysis',
+          params:{
+            type:'journal',
+            journalId:id
+          }
+        
+        })
+   }
+
   useEffect(() => {
     return () => {
-      if (!isSaving && journalId && journalData?.status !== 'analysisCompleted') autoSave();
+      if (!isSaving && journalId && journalData?.status !== 'analysisCompleted')
+      autoSave();
     };
   }, [title, content, color, journalData?.status]);
 
@@ -300,7 +323,7 @@ useEffect(() => {
             color: "#fff",
           }}
         >
-          Loading journal...
+         Loading
         </Text>
       </View>
     );
@@ -389,12 +412,25 @@ useEffect(() => {
             globalStyle.container,
           ]}
         >
+          {
+            analyzing || journalData.status === 'analysisCompleted' ? 
+          <Button
+              style={[styles.button, { backgroundColor: color,width:'100%' }]}
+              onPress={()=>showAnalysis(journalData._id)}
+            >
+              <Text
+                style={{ fontFamily: "Fredoka-Medium", color: "#fff", gap: 12 }}
+              >
+                Show Analysis
+              </Text>
+            </Button>:
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
             <Button
               style={[styles.button, { backgroundColor: "#505050ff" }]}
               onPress={isListening ? stopVoice : startVoice}
+              disabled={analyzing || journalData.status === 'analysisCompleted'}
             >
               <Text
                 style={{ fontFamily: "Fredoka-Medium", color: "#fff", gap: 12 }}
@@ -418,7 +454,9 @@ useEffect(() => {
               </Text>
             </Button>
           </View>
+}
         </View>
+              
         <Portal>
           <Dialog visible={visible} onDismiss={() => setVisible(false)}>
             <Image

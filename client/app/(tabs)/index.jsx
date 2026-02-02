@@ -29,7 +29,11 @@ import { setCheckInInfo } from "../redux/slices/checkinSlice";
 
 import MoodSyncMascot from "../components/pages/MoodSyncMascot";
 
+import { requireNativeModule } from "expo-modules-core";
+
+
 export default function Index() {
+  const StreakWidget = requireNativeModule("StreakWidget");
   const [loggedInfo,setLoggedInfo] = useState(null) 
   const [checkInInfos,setCheckInInfos] = useState(null)
   const [week, setWeek] = useState(null);
@@ -38,7 +42,11 @@ export default function Index() {
   const router = useRouter()
   const {isSound} = useSelector(state=>state.audio)
  const dispatch = useDispatch()
- 
+ useEffect(() => {
+  if (userInfo?.streaks?.current !== undefined) {
+    StreakWidget.updateStreak(userInfo.streaks.current);
+  }
+}, [userInfo?.streaks?.current]);
 
    const player = useAudioPlayer(require('../../assets/audio/start.mp3'))
     if(isSound){
@@ -285,7 +293,7 @@ useFocusEffect(
             <LottieView source={require('../../assets/Lottie/clouds.json')} autoPlay loop={true} style={{width:500,height:500,position:'absolute',bottom:30,right:0,left:-50}}/>
             
             <MoodSyncMascot mood={userInfo?.lastMoodScore || 55} energy={userInfo?.lastEnergyScore || 50}/>
-            <Button style={style.button}>
+            <Button style={style.button} onPress={()=>router.push('../completeAnalysis/FullAnalysis')}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Text
                   style={{

@@ -107,7 +107,7 @@ const updateJournal = async (req, res) => {
       {
         _id: req.params.id,
         userId: req.user.userId,
-        status: { $ne: "analysisCompleted" } // 🔒 hard lock
+        status: { $ne: "analysisCompleted" } 
       },
       [
         {

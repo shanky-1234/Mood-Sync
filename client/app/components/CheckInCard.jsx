@@ -4,9 +4,10 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Colors } from '../Constants/styleVariable'
 import React from 'react'
 
-const CheckInCard = ({moodScore,time}) => {
+const CheckInCard = ({moodScore,time,handlePress}) => {
+
   return (
-    <TouchableOpacity style={{padding:12,backgroundColor:'#fff', borderRadius:12}}>
+    <TouchableOpacity style={{padding:12,backgroundColor:'#fff', borderRadius:12}} onPress={handlePress}>
         <View style={{flex:1,flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
         <View>
             <AnimatedCircularProgress

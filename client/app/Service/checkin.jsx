@@ -37,7 +37,20 @@ getCheckIn: async()=>{
         const errorMessage = error.response?.data?.message || 'Failed Updating Checking';
       throw new Error(errorMessage);
     }
+},
+getCheckInById:async(id)=>{
+    try{
+         const response = await api.get(`/checkIn/getCheckIn/${id}`)
+        console.log(response.data)
+        return response.data
+    }
+    catch(error){
+                 console.error(error)
+        const errorMessage = error.response?.data?.message || 'Failed Updating Checking';
+      throw new Error(errorMessage);
+    }
 }
+
 }
 
 export default checkInService

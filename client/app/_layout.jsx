@@ -140,7 +140,11 @@ useEffect(() => {
            <Button style={{marginTop:28}}><AntDesign name="close" size={24} color={Colors.primary} onPress={()=>router.replace('/(tabs)')}/></Button>
         ),headerTitleAlign:'center',headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary},
         }} />
-        
+
+           <Stack.Screen name="completeAnalysis/FullAnalysis"
+        options={{headerShown:true, headerTitle:'Activities Today', headerShadowVisible:false, headerStyle:{backgroundColor:'#fff'},headerTitleAlign:'center',headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary},
+        }} />
+    
         
     </Stack>
   );
