@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View,Image, TouchableOpacity,} from 'react-native'
+import { StyleSheet, Text, View,Image, TouchableOpacity, ScrollView,} from 'react-native'
 import {React,useCallback, useEffect, useState,} from 'react'
 import { useFocusEffect } from 'expo-router'
 import { Button,Badge,Switch } from 'react-native-paper'
@@ -6,6 +6,7 @@ import axios from 'axios'
 import authService from '../Service/auth'
 import { useDispatch,useSelector } from 'react-redux'
 import { setIsGoogleAccount, setToken, setUser } from '../redux/slices/authSlice'
+import {setBackground} from '../redux/slices/backgroundSlice'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Link, useRouter } from 'expo-router'
 import { globalStyle } from '../Constants/globalStyles'
@@ -18,6 +19,8 @@ import GoogleSign from '../authPages/GoogleSign'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
 import Fontisto from '@expo/vector-icons/Fontisto';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { background } from '../utils/backgroundSelector'
+
 
 
 const ProfilePage = () => {
@@ -25,9 +28,11 @@ const dispatch = useDispatch()
 const [switches,  setSwitches] = useState(true)
 const router = useRouter()
 const [loggedInfo,setLoggedInfo] = useState()
+const [activeBg,setActiveBg] = useState('background1')
  
 const {isSound} = useSelector((state)=>state.audio)
   const{userInfo,isGoogleAccount} = useSelector((state)=>state.auth)
+  const {backgrounds} = useSelector((state)=>state.backgrounds)
   const {checkInInfo} = useSelector((state)=>state.checkIn) // Get from slices and states
 
   const toggleSwitch = ()=>{
@@ -89,8 +94,17 @@ useFocusEffect(
   }, [])
 );
 
+useEffect(()=>{
+  setActiveBg(backgrounds)
+},[])
+
+const handleBackground =async(name)=>{
+  setActiveBg(name)
+  dispatch(setBackground(name))
+  await AsyncStorage.setItem('backgroundName',name)
+}
   return (
-    <View style={[globalStyle.container,{backgroundColor:'#FBE7E5', flex:1}]}>
+    <ScrollView style={[globalStyle.container,{backgroundColor:'#FBE7E5'}]}>
       <View style={{marginTop:24}}>
        <Image
                          source={moodState.image}
@@ -100,7 +114,7 @@ useFocusEffect(
                          height={200}
                        />
       </View>
-      <View style={{flex:1, height:200}}>
+      <View>
         <Text style={{fontFamily:'Fredoka-Medium', fontSize:24, color:Colors.primary, textAlign:'center'}}>{userInfo?.fullname}</Text>
         <Text style={{fontFamily:'JosefinSlab-Bold', fontSize:16, color:Colors.primary, textAlign:'center'}}>{userInfo?.gender
   ? userInfo.gender.charAt(0).toUpperCase() + userInfo.gender.slice(1)
@@ -181,6 +195,31 @@ useFocusEffect(
                           </View>
                         </Badge>
         </View>
+        <View >
+          <Text style={{fontFamily:'Fredoka-Medium',fontSize:24,marginTop:20,color:Colors.primary}}>
+            Select Background
+          </Text>
+        <ScrollView style={{width: "100%", gap: 12, marginTop:16}} horizontal={true} contentContainerStyle={{gap:12}} showsHorizontalScrollIndicator={false}>
+          {
+            background.map((items,key)=>{
+              return(
+                <TouchableOpacity key={key} style={[{padding:4, borderWidth:1, borderRadius:20, borderColor:Colors.secondary, overflow:'hidden',justifyContent:'center',alignItems:'center'},items.name === activeBg && { backgroundColor:'#fecece', borderWidth:5 }]} disabled={items.unlock >= userInfo?.currentLvl} onPress={()=>handleBackground(items.name)}>
+              <View style={{position:'relative'}}>
+                <Image source={items.image} style={[{width:200, height:100},items.unlock >= userInfo?.currentLvl && {opacity:0.5}]}resizeMode='contain'/>
+                  { items.unlock >= userInfo?.currentLvl &&
+                  <View style={{position:'absolute',top:40,right:50,justifyContent:'center',alignContent:'center',alignItems:'center'}} >
+                <Fontisto name="locked" size={24} color={Colors.primary} />
+                <Text style={{textAlign:'center',fontFamily:'JosefinSlab-SemiBold',color:Colors.primary}}>Unlocks at level {items.unlock}</Text>
+                </View>
+                  }
+              </View>
+          </TouchableOpacity>
+              )
+            })
+          }
+          
+        </ScrollView>
+        </View>
         <View style={{marginTop:24,gap:8}}>
           <View style={[style.card, {alignContent:'center',alignItems:'center',justifyContent:'space-between',flexDirection:'row'}]}>
          <View style={{flexDirection:'row', gap:8}}>
@@ -200,7 +239,7 @@ useFocusEffect(
           </View>
         </View>
         <View style={{marginTop:24}}>
-          { !isGoogleAccount &&
+          { isGoogleAccount &&
           <TouchableOpacity style={style.card}>
       <View style={{flexDirection:"row", alignItems:'center',width:'100%', gap:12,}}>
     
@@ -210,7 +249,10 @@ useFocusEffect(
      
     </TouchableOpacity>
 }
-    <View style={{marginTop:4,marginBottom:16}}>
+   
+        </View>
+      </View>
+       <View style={{marginBottom:16}}>
      <Button
                     mode="contained"
                     style={[style.button]}
@@ -224,9 +266,7 @@ useFocusEffect(
                       </Text> 
                   </Button>
         </View>
-        </View>
-      </View>
-    </View>
+    </ScrollView>
   )
 }
 

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import StepProgress from '../components/StepProgress'
 import { globalStyle } from '../Constants/globalStyles'
@@ -34,7 +34,7 @@ const secondStep = () => {
 
   }
   return (
-<View style={[{backgroundColor:'#FCE9E7',flex:1,}]}>
+<ScrollView style={[{backgroundColor:'#FCE9E7',flex:1,}]}>
     <View style={globalStyle.container}>
       <StepProgress currentStep={currentStep} progressLink={handleLinking}/>
       </View>
@@ -102,7 +102,7 @@ const secondStep = () => {
                         Continue
                       </Text></Button>
     </View>
-    </View>
+    </ScrollView>
   )
 }
 

@@ -26,14 +26,16 @@ import { setLoading, setToken, setUser } from "../redux/slices/authSlice";
 import { fetchAndUpdateUser } from "../utils/fetchandupdatedata";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setCheckInInfo } from "../redux/slices/checkinSlice";
+import { setBackground } from "../redux/slices/backgroundSlice";
 
 import MoodSyncMascot from "../components/pages/MoodSyncMascot";
 
-import { requireNativeModule } from "expo-modules-core";
-
+import { NativeModules } from 'react-native';
+import { backgroundMap } from "../utils/backgroundLottie";
+const { StreakWidget } = NativeModules;
 
 export default function Index() {
-  const StreakWidget = requireNativeModule("StreakWidget");
+  // const StreakWidget = requireNativeModule("StreakWidget");
   const [loggedInfo,setLoggedInfo] = useState(null) 
   const [checkInInfos,setCheckInInfos] = useState(null)
   const [week, setWeek] = useState(null);
@@ -42,11 +44,7 @@ export default function Index() {
   const router = useRouter()
   const {isSound} = useSelector(state=>state.audio)
  const dispatch = useDispatch()
- useEffect(() => {
-  if (userInfo?.streaks?.current !== undefined) {
-    StreakWidget.updateStreak(userInfo.streaks.current);
-  }
-}, [userInfo?.streaks?.current]);
+ 
 
    const player = useAudioPlayer(require('../../assets/audio/start.mp3'))
     if(isSound){
@@ -70,11 +68,18 @@ export default function Index() {
   const{userInfo} = useSelector((state)=>state.auth)
   const {checkInInfo} = useSelector((state)=>state.checkIn)
   const {journalInfo} = useSelector((state)=>state.journal) // Get from slices and states
+  const {backgrounds} = useSelector((state)=>state.backgrounds)
 
   const date = getCurrentDate(); // Get The Current Date Information (Today)
   const fill =20
 
-
+useEffect(() => { // For widget
+    if (userInfo?.streaks?.current !== undefined && StreakWidget) {
+      StreakWidget.updateStreak(userInfo.streaks.current)
+        .then(() => console.log('Widget updated with streak:', userInfo.streaks.current))
+        .catch((error) => console.error('Error updating widget:', error));
+    }
+  }, [userInfo?.streaks?.current]);
 useFocusEffect(
   useCallback(() => {
     let isActive = true;
@@ -167,7 +172,16 @@ useFocusEffect(
    
   }
 
+useEffect(() => {
+  const loadBackground = async () => {
+    const saved = await AsyncStorage.getItem('backgroundName')
+    if (saved) {
+      dispatch(setBackground(saved))
+    }
+  }
 
+  loadBackground()
+}, [])
   
   return (
     <>
@@ -290,7 +304,7 @@ useFocusEffect(
               </View>
           </View>
           <View style={{ marginTop: 28, position:'relative' }}>
-            <LottieView source={require('../../assets/Lottie/clouds.json')} autoPlay loop={true} style={{width:500,height:500,position:'absolute',bottom:30,right:0,left:-50}}/>
+            <LottieView source={backgroundMap[backgrounds]} autoPlay loop={true} style={{width:550,height:550,position:'absolute',bottom:30,right:0,left:-50}}/>
             
             <MoodSyncMascot mood={userInfo?.lastMoodScore || 55} energy={userInfo?.lastEnergyScore || 50}/>
             <Button style={style.button} onPress={()=>router.push('../completeAnalysis/FullAnalysis')}>
