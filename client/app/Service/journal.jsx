@@ -76,6 +76,30 @@ const jounralService = {
              const errorMessage = error.response?.data?.message || 'Failed Updating AI';
       throw new Error(errorMessage);
         }
+    },
+    uploadPhoto:async(id,formData)=>{
+        try {
+            const response = await api.put(`journal/${id}/photos`,formData,{
+                headers:{
+                    "Content-Type":"multipart/form-data"
+                }
+            })
+            return response.data
+        } catch (error) {
+             console.error(error)
+             const errorMessage = error.response?.data?.message || 'Failed Uploading Pictures';
+      throw new Error(errorMessage);
+        }
+    },
+    deletePhotos:async(id,photoId)=>{
+        try {
+            const response = await api.delete(`journal/${id}/photos/${photoId}`)
+            return response.data;
+        } catch (error) {
+              console.error(error)
+             const errorMessage = error.response?.data?.message || 'Failed Deleting Photo';
+      throw new Error(errorMessage);
+        }
     }
 
     

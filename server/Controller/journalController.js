@@ -5,6 +5,7 @@ const userModel = require('../Models/user-model')
 const User = require('../Models/user-model')
 const { journalAnalysis } = require('../Service/journalAnalysis')
 const { calculateJournalExp, updateLevel, calculateExpToNextLevel, updateStreaks } = require('../utils/calculation')
+const cloudinary = require('../config/cloudinary')
 
 
 
@@ -143,7 +144,7 @@ const updateJournal = async (req, res) => {
         message: "Journal not found or locked"
       });
     }
-
+    console.log(req.files)
     return res.status(200).json({
       success: true,
       message: "Journal Updated Successfully!",
@@ -159,10 +160,101 @@ const updateJournal = async (req, res) => {
   }
 };
 
+const uploadPhotos = async (req,res)=>{
+    try {
+        const journal = await Journal.findOne({
+            _id:req.params.id,
+            userId:req.user.userId,
+            status:{$ne:"analysisCompleted"}
+        })
+
+        if(!journal){
+            return res.status(404).json({
+                success:false,
+                message:'No Journal Found or Already Analyzed'
+            })
+        }
+
+        if(!req.files || req.files.length === 0){
+            return res.status(400).json({
+                success:false,
+                message:"No Files Found"
+            })
+        }
+
+        const uploadPhotos = req.files.map((file)=>(
+            {
+                url:file.path,
+                publicId:file.filename,
+                uploadedAt:new Date()
+            }
+        ))
+
+        journal.photos.push(...uploadPhotos)
+
+        await journal.save()
+
+        return res.status(200).json({
+            success:true,
+            message:'Photo Sucessfully Uploaded',
+            photos:journal.photos
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            success:false,
+            message:'Internal Server Error'
+        })
+    }
+}
+
+const deletePhoto = async(req,res) =>{
+    try {
+        const {id,photoId} = req.params
+
+        const journal = await Journal.findOne({
+            _id:id,
+            userId:req.user.userId
+        })
+
+        if(!journal){
+            return res.status(404).json({
+                success:false,
+                message:"Jounral Not Found"
+            })
+        }
+
+        const photo = journal.photos.id(photoId)
+
+        if(!photo){
+            return res.status(404).json({
+                success:false,
+                message:"Jounral Not Found"
+            })
+        }
+
+        await cloudinary.uploader.destroy(photo.publicId)
+
+        journal.photos.pull(photoId)
+        await journal.save()
+
+        return res.status(200).json({
+      success: true,
+      message: "Photo deleted successfully",
+      photos: journal.photos,
+    });
+    } catch (error) {
+         console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+    }
+}
 
 const deleteJournal = async (req,res)=>{
     try {
-        const id = req.params.id
+        const {id} = req.params.id
         if(!id){
             return res.status(404).json({
                 success:false,
@@ -385,4 +477,4 @@ const analyzeJournal = async (req,res)=>{
 }
 
 
-module.exports = {getAllJournal, getJournalById, createJournal, updateJournal,deleteJournal,getTodayJournal,analyzeJournal}
+module.exports = {getAllJournal, getJournalById, createJournal, updateJournal,deleteJournal,getTodayJournal,analyzeJournal,uploadPhotos,deletePhoto}

@@ -17,6 +17,20 @@ const JournalSchema = new mongoose.Schema({
         type:String,
         default:''
     },
+    photos:[
+        {
+            url:{
+                type:String,
+            },
+            publicId:{
+                type:String
+            },
+                uploadedAt:{
+                type:Date,
+                default:Date.now
+            }
+        }
+    ],
     color:{
         type:String,
         default:'#DE4742',

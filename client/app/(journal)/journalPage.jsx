@@ -30,6 +30,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { PermissionsAndroid, Platform, Linking } from "react-native";
 import { start, stop, subscribe, cancel } from "react-native-rn-voicekit";
 import {UseStoredJournalData} from '../Context/StoredJournal'
+import * as ImagePicker from 'expo-image-picker';
 
 const JournalPage = () => {
   const router = useRouter();
@@ -47,6 +48,8 @@ const JournalPage = () => {
   const {setJournalResult} = UseStoredJournalData()
   const [analyzing, setAnalyzing] = useState(false)
   const [isLoaded,setIsLoaded]=useState(false)
+  const [photo,setPhoto] = useState([])
+  const [uploading,setUploading] = useState(false)
   const params = useLocalSearchParams();
   const journalId = params.journalId;
   const isStartingRef = useRef(false)
@@ -184,6 +187,7 @@ useEffect(() => {
   setJournalData(draftJournal); // ✅ THIS WAS MISSING
   setIsLoaded(true);
   setFetchingJournal(false);
+  setPhoto([]);
   return 
     }
 
@@ -195,6 +199,7 @@ useEffect(() => {
         setColor(res.journal.color || Colors.primary);
         setJournalData(res.journal)
         setIsLoaded(true)
+        setPhoto(res.journal.photos || []);
       }
     } catch (e) {}
 
@@ -328,6 +333,98 @@ useEffect(() => {
       </View>
     );
   }
+const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the media library is required.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+   if (!result.canceled) {
+    const selectedImage =  result.assets[0]
+
+    const tempPhoto = {
+      uri:selectedImage.uri,
+      uploaded:false
+    }
+   setPhoto(prevResult => [...prevResult, tempPhoto]);
+
+   await uploadImagetoServer(selectedImage)
+  }
+  };
+  const uploadImagetoServer = async(asset)=>{
+    try {
+      setUploading(true)
+      const formData = new FormData()
+      formData.append("photos",{
+        uri:asset.uri,
+        type:asset.mimeType || 'image/jpeg',
+        name:asset.filename || `photo.${asset.mimeType?.split('/')[1] || 'jpg'}`
+      })
+
+      const res = await jounralService.uploadPhoto(journalId,formData)
+      if (res.success){
+        console.log('Photo Uploaded!')
+        setPhoto(res.photos)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+    finally{
+      setUploading(false)
+    }
+  }
+
+  
+
+  const takePhoto = async() =>{
+    const permissionResult = ImagePicker.getCameraPermissionsAsync()
+  
+    const result = await ImagePicker.launchCameraAsync({
+     mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    })
+
+     if (!result.canceled) {
+   const selectedImage =  result.assets[0]
+
+    const tempPhoto = {
+      uri:selectedImage.uri,
+      uploaded:false
+    }
+   setPhoto(prevResult => [...prevResult, tempPhoto]);
+
+   await uploadImagetoServer(selectedImage)
+  }
+  }
+
+  const handleDeletePhoto = async (id,photoId) =>{
+      try {
+        setUploading(true)
+        const res = await jounralService.deletePhotos(id,photoId)
+
+        if(res.success){
+          console.log('delete successful')
+          setPhoto(res.photos)
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      finally{
+        setUploading(false)
+      }
+  }
 
   return (
     <PaperProvider>
@@ -346,10 +443,10 @@ useEffect(() => {
           <View
             style={{ justifyContent: "space-between", flexDirection: "row" }}
           >
-            <TouchableOpacity onPress={handleBackPress}>
+            <TouchableOpacity onPress={handleBackPress} disabled={uploading}>
               <Ionicons name="arrow-back" size={32} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setVisible(true)}>
+            <TouchableOpacity onPress={() => setVisible(true)} disabled={uploading}>
               <MaterialIcons name="delete-outline" size={32} color="white" />
             </TouchableOpacity>
           </View>
@@ -394,6 +491,16 @@ useEffect(() => {
                 smartAutoSave();
               }}
             />
+            <View style={{flexDirection:'column',gap:12}}>
+            {photo.length > 0 &&
+            photo.map((item,key)=>(
+              <View key={key} style={{position:'relative'}}><Image source={{uri:item.url || item.uri}} style={{width:300,height:300,borderRadius:20,borderWidth:10,borderColor:'#fff'}}/>
+            <Image source={require('../../assets/icons/tape.png')} style={{position:'absolute', top:-10,right:40,width:80,height:80}}/>
+            <Button disabled={uploading} onPress={()=>handleDeletePhoto(journalId,item._id)} style={[{position:'absolute',borderRadius:20,top:15,left:12,padding:1,backgroundColor:Colors.primary, width:'auto'},uploading && {backgroundColor:'#5d5d5d'}]}>{uploading ? <ActivityIndicator size="small"/> : <FontAwesome name="close" size={16} color="#fff" />}</Button>
+            </View>
+            ))
+            }
+            </View>
           </ScrollView>
         </View>
         <View
@@ -428,18 +535,31 @@ useEffect(() => {
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
             <Button
-              style={[styles.button, { backgroundColor: "#505050ff" }]}
+              style={[styles.button, { backgroundColor:Colors.primary,width:'20%',borderRadius:50 },isListening && {backgroundColor:Colors.secondary}]}
               onPress={isListening ? stopVoice : startVoice}
               disabled={analyzing || journalData.status === 'analysisCompleted'}
             >
               <Text
                 style={{ fontFamily: "Fredoka-Medium", color: "#fff", gap: 12 }}
+              >{ !isListening ? 
+                <FontAwesome name="microphone" size={16} color="#fff" /> :
+                <MaterialCommunityIcons name="microphone-settings" size={20} color="#fff" />
+}
+                </Text>
+            </Button>
+             <Button onPress={()=>Alert.alert("Add Photo","Choose an Option",[
+              {text:'Camera',onPress:takePhoto},
+              {text:'Gallery',onPress:pickImage},
+              {text:'Cancel'}
+             ])} disabled={uploading} style={[styles.button, { backgroundColor: analyzing || journalData.status === 'analysisCompleted' ? '#5d5d5d' :Colors.primary },uploading && {backgroundColor:'#5d5d5d'}]}>
+              <Text
+                style={{ fontFamily: "Fredoka-Medium", color: "#fff", gap: 12 }}
               >
-                {isListening ? "Listening..." : "Voice Mode"}
-                <FontAwesome name="microphone" size={16} color="#fff" />
+               Upload
+               <FontAwesome name="photo" size={16} color="#fff" />
               </Text>
             </Button>
-            <Button onPress={()=>analyzeAI(journalId ? journalId : journalData._id)} disabled={analyzing || journalData.status === 'analysisCompleted'} style={[styles.button, { backgroundColor: analyzing || journalData.status === 'analysisCompleted' ? '#5d5d5d' :Colors.primary }]}>
+            <Button onPress={()=>analyzeAI(journalId ? journalId : journalData._id)} disabled={analyzing || journalData.status === 'analysisCompleted' || uploading} style={[styles.button, { backgroundColor: analyzing || journalData.status === 'analysisCompleted' ? '#5d5d5d' :Colors.primary },uploading && {backgroundColor:'#5d5d5d'}]}>
               <Text
                 style={{ fontFamily: "Fredoka-Medium", color: "#fff", gap: 12 }}
               >
@@ -453,6 +573,8 @@ useEffect(() => {
                 />
               </Text>
             </Button>
+            
+
           </View>
 }
         </View>
@@ -511,7 +633,7 @@ export default JournalPage;
 
 const styles = StyleSheet.create({
   button: {
-    width: "40%",
+    width: "30%",
     marginTop: 24,
     borderRadius: 8,
     height: 56,

@@ -103,6 +103,7 @@ const authService = {
       await AsyncStorage.removeItem('UserData');
       await AsyncStorage.removeItem('UserToken');
       await AsyncStorage.removeItem("CheckInData")
+      await AsyncStorage.removeItem("backgroundName")
       
       return response.data;
     } catch (error) {
@@ -112,6 +113,7 @@ const authService = {
       await AsyncStorage.removeItem('UserData');
       await AsyncStorage.removeItem('UserToken');
       await AsyncStorage.removeItem("CheckInData")
+      await AsyncStorage.removeItem("backgroundName")
       
       
       throw error;
