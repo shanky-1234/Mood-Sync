@@ -232,14 +232,12 @@ const handleBackground =async(name)=>{
             <View style={{flexDirection:'row', gap:8}}>
             <Fontisto name="bell-alt" size={16} color={Colors.primary} />
           <Text style={[style.cardText]}>Notification</Text>
-          <Link href={'../completeAnalysis/Analysis'}>Analysis</Link>
-          <Link href={'../completeAnalysis/analysisComplete'}>Analysis</Link>
           </View>
           <Switch color={Colors.primary}/>
           </View>
         </View>
         <View style={{marginTop:24}}>
-          { isGoogleAccount &&
+          { !isGoogleAccount &&
           <TouchableOpacity style={style.card}>
       <View style={{flexDirection:"row", alignItems:'center',width:'100%', gap:12,}}>
     

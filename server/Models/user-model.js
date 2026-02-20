@@ -30,6 +30,33 @@ const UserSchema = new mongoose.Schema({
         type:String,
         unique:true,
     },
+    googleEmail:{
+        type:String,
+    },
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
+    emailVerificationToken:{
+        type:String,
+    },
+    isVerified: {
+    type: Boolean,
+    default: false,
+},
+emailVerificationToken: {
+    type: String,
+},
+emailVerificationExpires: {
+    type: Date,
+},
+resetPassword:{
+    type:String,
+
+},
+resetPasswordExpires: {
+    type: Date,
+},
     // Related to Gamification
     streaks:{
         current:{type:Number,default:0},

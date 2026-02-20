@@ -154,8 +154,6 @@ const handleGoogleSignIn = async () => {
       const response = await authService.normalRegistration(userData)
       if(response){
         console.log('success')
-        setVisible(true)
-        setDialougeTitle('Account Sucessfully Created')
         setDialougeContent('')
         setFullname('')
         setAge('')
@@ -163,6 +161,10 @@ const handleGoogleSignIn = async () => {
         setEmail('')
         setPassword('')
         setConfirmPassword('')
+        router.replace({
+          pathname:'./EmailVerification/',
+          params:{email}
+        })
       }
     } catch (error) {
       console.log(error)
@@ -362,17 +364,6 @@ const handleGoogleSignIn = async () => {
                 </View>
                 
               </Button>
-              
-              <Button
-                mode="text"
-                labelStyle={{
-                  fontFamily: "Fredoka-Regular",
-                  color: Colors.primary,
-                  marginTop: 16,
-                }}
-              >
-                Forgot Password ?
-              </Button>
             </View>
             <Text style={{ textAlign: "center", marginTop: 20 }}>OR</Text>
             <Button
@@ -428,6 +419,16 @@ const handleGoogleSignIn = async () => {
                 href={"./Login/"}
               >
                 Login Account
+              </Link>
+               <Link
+                style={{
+                  color: Colors.primary,
+                  marginTop: 8,
+                  fontFamily: "Fredoka-Regular",
+                }}
+                href={"./EmailVerification/"}
+              >
+                Verification
               </Link>
             </View>
           </ScrollView>

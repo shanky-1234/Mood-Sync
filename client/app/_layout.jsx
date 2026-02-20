@@ -116,6 +116,22 @@ useEffect(() => {
         name="authPages/GoogleSign"
         options={{ headerShown: false }}
       />
+           <Stack.Screen
+        name="authPages/EmailVerification"
+        options={{ headerShown: false }}
+      />
+             <Stack.Screen
+        name="authPages/ForgotPassword"
+        options={{ headerShown: false }}
+      />
+                <Stack.Screen
+        name="authPages/EmailVerificationPassword"
+        options={{ headerShown: false }}
+      />
+             <Stack.Screen
+        name="authPages/ChangePassword"
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="profile/ProfilePage"
         options={{ headerShown: false }}

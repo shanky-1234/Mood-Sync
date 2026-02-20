@@ -38,79 +38,21 @@ GoogleSignin.configure({
   webClientId:process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
 })
 
-const Login = () => {
+const ForgotPassword = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [onSecure,setOnSecure] = useState(true)
   const [visible, setVisible] = useState(false);
   const [dialougeTitle, setDialougeTitle] = useState("");
   const [dialougeContent, setDialougeContent] = useState("");
-  const [isExtraInfo,setIsExtraInfo] = useState(false)
   const { isLoading } = useSelector((state) => state.auth);
   const [userInfo,setUserInfo] = useState([])
   const dispatch = useDispatch();
   
- const handleGoogleSignIn = async () => {
-  try {
-    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-    
-    const user = await GoogleSignin.signIn();
-    console.log("Google Sign-In response:", user); // log raw response
-
-    if(user.data !=null){
-    setUserInfo(user.data.user); 
-    console.log(userInfo)
-    const response = await authService.googleAuth(user.data.user.id,user.data.user.name,user.data.user.email)
-    console.log('auth',response)
-    if(response.needsExtraInfo){
-      const {googleId,fullname,email} = response.user
-     
-      router.replace({
-        pathname:'./GoogleSign',
-        params:{
-         email: response.user.email,
-    fullname: response.user.fullname,
-    googleId: response.user.googleId,
-        }
-      })
-    }else{
-       dispatch(setUser(response.user))
-        dispatch(setToken(response.generate))
-        dispatch(setIsGoogleAccount(response.googleSignIn))
-        console.log("loggedinsuccessfully");
-        console.log(response)
-        router.replace("/(tabs)");
-    }
-    }
-    
-  } catch (error) {
-    console.error("Google Sign-In Error:", error);
-    if (isErrorWithCode(error)) {
-      switch (error.code) {
-        case statusCodes.IN_PROGRESS:
-          Alert.alert('Sign in is already in progress');
-          break;
-        case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-          Alert.alert('Google Play Services not available');
-          break;
-        case statusCodes.SIGN_IN_CANCELLED:
-          Alert.alert('Sign in was cancelled');
-          break;
-        default:
-          Alert.alert('Google Sign-In Error');
-      }
-    } else {
-      Alert.alert("Unexpected error");
-    }
-  }
-};
-
-
  
-  const handleLogin = async () => {
+ 
+  const handleVerification = async () => {
   
-    if (!email || !password) {
+    if (!email) {
       setDialougeTitle("Fields Are Empty");
       setVisible(true);
       return
@@ -124,14 +66,14 @@ const Login = () => {
     }
     dispatch(setLoading(true))
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.verifyEmail(email)
       if (response.success === true) {
-        dispatch(setUser(response.getUser))
-        dispatch(setToken(response.generateToken))
+        router.replace({
+            pathname:'./EmailVerificationPassword/',
+            params:{email}
+        })
         console.log("loggedinsuccessfully");
         console.log(response)
-        
-        router.replace("/(tabs)");
       }
 
     } catch (error) {
@@ -160,7 +102,7 @@ const Login = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.title}>Log-In</Text>
+          <Text style={styles.title}>Forgot Password</Text>
           <View style={[styles.loginContainer, globalStyle.container]}>
             <View style={{ gap: 16 }}>
               <View>
@@ -180,30 +122,12 @@ const Login = () => {
                   onChangeText={(email) => setEmail(email)}
                 />
               </View>
-              <View>
-                <TextInput
-                  value={password}
-                  style={styles.input}
-                  secureTextEntry={onSecure}
-                  mode="outlined"
-                  outlineColor="transparent"
-                  placeholder="Enter Your Password"
-                  placeholderTextColor="#A29999"
-                  left={<TextInput.Icon icon="lock" color="#A29999" />}
-                  right={onSecure ? <TextInput.Icon icon="eye" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)} /> :<TextInput.Icon icon="eye-off" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)} /> }
-                  contentStyle={{
-                    fontFamily: "Fredoka-Regular",
-                  }}
-                  onChangeText={(password) => setPassword(password)}
-                />
-              </View>
-            </View>
-            <View>
+             
               <Button
                 mode="contained"
                 style={[styles.button, isLoading && { opacity: 0.8 }]}
                 labelStyle={{ fontFamily: "Fredoka-Regular" }}
-                onPress={() => handleLogin()}
+                onPress={() => handleVerification()}
                 disabled={isLoading}
               >
                 <View style={{ flexDirection: "row", gap: 4 }}>
@@ -212,58 +136,11 @@ const Login = () => {
                     style={{ fontFamily: "Fredoka-Regular", color: "#fff" }}
                   >
                     {" "}
-                    {isLoading ? "Logging In" : "Log In"}
+                    {isLoading ? "Verifying" : "Verify Email"}
                   </Text>
                 </View>
               </Button>
-              <Button
-                mode="text"
-                labelStyle={{
-                  fontFamily: "Fredoka-Regular",
-                  color: Colors.primary,
-                  marginTop: 16,
-                }}
-                onPress={()=>router.replace('./ForgotPassword/')}
-              >
-                Forgot Password ?
-              </Button>
-              
             </View>
-
-            <Text style={{ textAlign: "center", marginTop: 20 }}>OR</Text>
-            <Button
-              onPress={handleGoogleSignIn}
-              mode="outlined"
-              style={styles.buttonOutlined}
-              labelStyle={{
-                fontFamily: "Fredoka-Regular",
-                color: Colors.primary,
-                marginTop: 16,
-              }}
-              contentStyle={{
-                alignContent: "center",
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <Image
-                  source={require("../../assets/icons/google.png")}
-                  style={{ width: 18, height: 18, marginRight: 8 }}
-                  
-                />
-                <Text
-                  style={{
-                    fontSize: 14,
-                    color: "black",
-                    fontFamily: "Fredoka-Regular",
-                  }}
-                >
-                  Continue With Google
-                </Text>
-              </View>
-            </Button>
             <View
               style={{
                 justifyContent: "center",
@@ -281,7 +158,7 @@ const Login = () => {
                   marginTop: 8,
                   fontFamily: "Fredoka-Regular",
                 }}
-                href={"./CreateAccount/"}
+                href={"./EmailVerificationPassword/"}
               >
                 Create Account
               </Link>
@@ -341,7 +218,7 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;
 
 const styles = StyleSheet.create({
   container: {
