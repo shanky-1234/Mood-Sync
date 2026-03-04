@@ -3,6 +3,7 @@ import { setUser, setToken } from "../redux/slices/authSlice";
 import { setCheckInInfo } from "../redux/slices/checkinSlice";
 import api from "../Service/api";
 import { setJournalInfo } from "../redux/slices/journalSlice";
+import { setDailyReward } from "../redux/slices/rewardsSlice";
 
 export const getCurrentStreak = (streaks) => {
   if (!streaks || !streaks.lastDate) return 0;
@@ -51,6 +52,10 @@ export const fetchAndUpdateUser = async (dispatch) => {
 
     const getJournalToday = await api.get('journal/getTodayJournal')
 
+    const getDailyRewardToday = await api.get("rewards/getTodayReward");
+
+    const dailyReward = getDailyRewardToday.data?.dailyReward
+
     const journalCount =  getJournalToday.data
 
     const checkInTodayDataCount = getCheckInToday.data
@@ -68,6 +73,7 @@ export const fetchAndUpdateUser = async (dispatch) => {
     dispatch(setToken(storedToken));
     dispatch(setCheckInInfo(checkInTodayDataCount))
     dispatch(setJournalInfo(journalCount))
+    dispatch(setDailyReward(dailyReward))
 
     await AsyncStorage.setItem("UserData", JSON.stringify(freshUser));
     await AsyncStorage.setItem("CheckInData",JSON.stringify(checkInTodayDataCount))

@@ -4,6 +4,7 @@ import checkInSlice from './slices/checkinSlice'
 import journalSlice from './slices/journalSlice'
 import audioSlice from './slices/audioSlice'
 import backgroundSlice from './slices/backgroundSlice'
+import dailyRewardSlice from './slices/rewardsSlice'
 
 const store = configureStore({
     reducer:{
@@ -11,7 +12,8 @@ const store = configureStore({
         checkIn:checkInSlice,
         journal:journalSlice,
         audio:audioSlice,
-        backgrounds:backgroundSlice
+        backgrounds:backgroundSlice,
+        dailyReward:dailyRewardSlice
     }
 })
 

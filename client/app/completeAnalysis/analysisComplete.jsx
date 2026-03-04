@@ -26,6 +26,7 @@ export default function analysisComplete() {
   const dispatch = useDispatch()
   const { state } = useCheckIn();
   const {type,checkInId ,journalId} = useLocalSearchParams()
+  const {dailyReward} = useSelector(state=>state.dailyReward)
 
     const [play,setPlay ] = useState(true)
       const player = useAudioPlayer(require('../../assets/audio/complete.mp3'))
@@ -168,9 +169,12 @@ export default function analysisComplete() {
           <View>
             <Text style={{ fontFamily: "JosefinSlab-Bold" }}>{result?.gamification?.currentExp}/{result?.gamification?.expToNextLevel}</Text>
           </View>
+          <View>
+            <Text style={{ fontFamily: "JosefinSlab-Bold",fontSize:16 }} >+{result?.gamification?.expEarned} EXP Earned</Text>
+          </View>
         </View>
         <View>
-          <RewardTrackerCard />
+          <RewardTrackerCard title={dailyReward?.reward?.actionType} target={dailyReward?.reward?.targetCount} />
         </View>
         <View style={{gap:12, marginTop:28}}>
           <Button

@@ -69,6 +69,7 @@ export default function Index() {
   const {checkInInfo} = useSelector((state)=>state.checkIn)
   const {journalInfo} = useSelector((state)=>state.journal) // Get from slices and states
   const {backgrounds} = useSelector((state)=>state.backgrounds)
+  const {dailyReward} = useSelector((state)=>state.dailyReward)
 
   const date = getCurrentDate(); // Get The Current Date Information (Today)
   const fill =20
@@ -501,7 +502,7 @@ useEffect(() => {
               Daily Rewards
             </Text>
             <View style={{marginTop:16}}>
-              <RewardTrackerCard />
+              <RewardTrackerCard title={dailyReward?.reward?.actionType} target={dailyReward?.reward?.targetCount} />
             </View>
           </View>
           <View style={{marginTop:28, marginBottom:28}}>

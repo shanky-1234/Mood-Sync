@@ -11,6 +11,8 @@ const {
   updateLevel,
 } = require("../utils/calculation");
 const { analyzeJournal } = require("./journalController");
+const { getOrCreateDailyReward, updateDailyReward }
+  = require('../Service/dailyRewardService')
 
 const createCheckIn = async (req, res) => {
   try {
