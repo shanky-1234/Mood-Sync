@@ -170,11 +170,15 @@ export default function analysisComplete() {
             <Text style={{ fontFamily: "JosefinSlab-Bold" }}>{result?.gamification?.currentExp}/{result?.gamification?.expToNextLevel}</Text>
           </View>
           <View>
-            <Text style={{ fontFamily: "JosefinSlab-Bold",fontSize:16 }} >+{result?.gamification?.expEarned} EXP Earned</Text>
+            <Text style={{ fontFamily: "JosefinSlab-Bold",fontSize:16 }} >+{result?.gamification?.expEarned}
+{result?.dailyReward?.bonusGranted ? ` +${result?.dailyReward?.reward?.expReward}` : ""} EXP Earned</Text>
           </View>
         </View>
         <View>
-          <RewardTrackerCard title={dailyReward?.reward?.actionType} target={dailyReward?.reward?.targetCount} />
+          <RewardTrackerCard title={result?.dailyReward?.reward?.actionType}
+  target={result?.dailyReward?.required}
+  progress={result?.dailyReward?.progress}
+  bonusClaimed={result?.dailyReward?.bonusGranted}/>
         </View>
         <View style={{gap:12, marginTop:28}}>
           <Button

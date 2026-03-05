@@ -11,6 +11,7 @@ const dailyRewardSystem = {
       throw new Error(errorMessage);
         }
     }
+    
 }
 
 export default dailyRewardSystem

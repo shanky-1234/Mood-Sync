@@ -25,7 +25,10 @@ const GamificationSchema = new mongoose.Schema({
         required:true,
         min:0
     },
-
+    bonusExpEarned:{
+        type:Number,
+        default:0
+    },
     useStateActivity:{
         level:{
             type:Number,

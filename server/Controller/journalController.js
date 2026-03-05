@@ -6,8 +6,42 @@ const User = require('../Models/user-model')
 const { journalAnalysis } = require('../Service/journalAnalysis')
 const { calculateJournalExp, updateLevel, calculateExpToNextLevel, updateStreaks } = require('../utils/calculation')
 const cloudinary = require('../config/cloudinary')
+const { updateDailyReward, getOrCreateDailyReward } = require('../Service/dailyRewardService')
 
+const awardDailyBonus = async(dailyDocs,userId)=>{
+  if(!dailyDocs) return 
 
+  if(dailyDocs.claimed && !dailyDocs.bonusGranted){
+    const user = await userModel.findById(userId)
+    if(!user) return 
+      const beforeData = {
+  level: user.currentLvl,
+  totalExp: user.currentExp
+}
+    user.currentExp += dailyDocs.reward.expReward
+
+    const levelUp = updateLevel(user)
+
+    user.maxExp = calculateExpToNextLevel(user.currentLvl)
+   
+    await user.save()
+   dailyDocs.bonusGranted = true
+    await dailyDocs.save()
+    await gamificationModel.create({
+  userId,
+  activityType:"journal",
+  sourceId: dailyDocs._id,
+  expEarned: dailyDocs.reward.expReward,
+  bonusExpEarned: dailyDocs.reward.expReward,
+  useStateActivity: beforeData,
+  levelUp,
+  newLevel: levelUp ? user.currentLvl : null,
+  timestamp: new Date()
+})
+
+    
+  }
+}
 
 
 const getAllJournal = async (req,res)=>{
@@ -444,13 +478,24 @@ const analyzeJournal = async (req,res)=>{
 })
 
     user.maxExp = calculateExpToNextLevel(user.currentLvl)
+
+    const getDailyReward = await updateDailyReward(req.user.userId,"journal")
+    
+        const updateDailyFromStreak = await updateDailyReward(req.user.userId,"streak",streakInfo)
+    
+        await awardDailyBonus(getDailyReward,req.user.userId)
+        await awardDailyBonus(updateDailyFromStreak,req.user.userId)
+    
+        const finalReward = await getOrCreateDailyReward(req.user.userId)
     await user.save()
+
 
 
     return res.status(201).json({
         success:true,
         message:'Journal Analysis Completed',
         getJournal,
+        dailyReward:finalReward,
         gamification: {
     expEarned,
     previousExp: beforeData.totalExp,

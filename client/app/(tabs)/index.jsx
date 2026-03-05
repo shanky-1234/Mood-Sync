@@ -502,7 +502,7 @@ useEffect(() => {
               Daily Rewards
             </Text>
             <View style={{marginTop:16}}>
-              <RewardTrackerCard title={dailyReward?.reward?.actionType} target={dailyReward?.reward?.targetCount} />
+              <RewardTrackerCard title={dailyReward?.reward?.actionType} target={dailyReward?.required} progress={dailyReward?.progress } bonusClaimed={dailyReward?.bonusGranted}/>
             </View>
           </View>
           <View style={{marginTop:28, marginBottom:28}}>

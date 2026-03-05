@@ -14,6 +14,42 @@ const { analyzeJournal } = require("./journalController");
 const { getOrCreateDailyReward, updateDailyReward }
   = require('../Service/dailyRewardService')
 
+// Helper Functions
+const awardDailyBonus = async(dailyDocs,userId)=>{
+  if(!dailyDocs) return 
+
+  if(dailyDocs.claimed && !dailyDocs.bonusGranted){
+    const user = await userModel.findById(userId)
+    if(!user) return 
+      const beforeData = {
+  level: user.currentLvl,
+  totalExp: user.currentExp
+}
+    user.currentExp += dailyDocs.reward.expReward
+
+    const levelUp = updateLevel(user)
+
+    user.maxExp = calculateExpToNextLevel(user.currentLvl)
+   
+    await user.save()
+   dailyDocs.bonusGranted = true
+    await dailyDocs.save()
+    await gamificationModel.create({
+  userId,
+  activityType:"checkin",
+  sourceId: dailyDocs._id,
+  expEarned: dailyDocs.reward.expReward,
+  bonusExpEarned: dailyDocs.reward.expReward,
+  useStateActivity: beforeData,
+  levelUp,
+  newLevel: levelUp ? user.currentLvl : null,
+  timestamp: new Date()
+})
+
+    
+  }
+}
+
 const createCheckIn = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -96,6 +132,8 @@ const createCheckIn = async (req, res) => {
 
     await getUser.save();
 
+    
+
     const checkInCreate = await checkinModel.create({
       userId,
       timestamp: today,
@@ -153,15 +191,24 @@ console.log("AI CHECK-IN: about to call AI");
     getUser.maxExp = expToNextLevel;
     getUser.lastSolution = checkInCreate.analysis.solution
     getUser.updatedAt = checkInCreate.analysis.analysisDate
+    await getOrCreateDailyReward(userId)
+
+    const getDailyReward = await updateDailyReward(userId,"checkin")
+
+    const updateDailyFromStreak = await updateDailyReward(userId,"streak",streakInfo)
+
+    await awardDailyBonus(getDailyReward,userId)
+    await awardDailyBonus(updateDailyFromStreak,userId)
+
+    const finalReward = await getOrCreateDailyReward(userId)
     await getUser.save();
-
     
-
 
     return res.status(201).json({
       success: true,
       message: "Check In Successfully",
       checkIn: checkInCreate,
+      dailyReward:finalReward,
       gamification: {
         expEarned,
         previousExp: beforeData.totalExp,

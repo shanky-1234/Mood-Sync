@@ -25,6 +25,10 @@ const DailyRewardSchema = new mongoose.Schema({
     claimed:{
         type:Boolean,
         default:false
+    },
+    bonusGranted:{
+        type:Boolean,
+        default:false
     }
 })
 DailyRewardSchema.index({ user: 1, date: 1 }, { unique: true });

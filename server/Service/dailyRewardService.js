@@ -47,26 +47,25 @@ const updateDailyReward = async(userId,actionType,streakInfo = null)=>{
         date:today
     }).populate('reward')
 
-    if(!daily || daily.claimed){
-        return null
-    }
+    if(!daily || daily.claimed) return null
+    
 
     if(daily.reward.actionType === 'streak'){
         if (streakInfo?.increased){
+            daily.progress = daily.required
             daily.claimed = true
             await daily.save()
             return daily
         }
-        return null
+        return daily
     }
 
      if (daily.reward.actionType !== actionType) return null
 
      daily.progress +=1
 
-     if(daily.progress >= daily.required){
-        daily.claimed = true
-     }
+     if(daily.progress >= daily.required) daily.claimed = true
+     
 
      await daily.save()
 

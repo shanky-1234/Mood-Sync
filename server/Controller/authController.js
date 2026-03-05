@@ -194,49 +194,50 @@ const verifyEmail = async(req,res)=>{
     }
 }
 
-const changePassword = async(req,res)=>{
-    try {
-        const {password} = req.body
-        const token = req.headers.authorization?.split(" ")[1];
-        if(!token){
-            return res.status(401).json({
-        success: false,
-        message: "Unauthorized"
-      });
-        }
-        if(!password){
-            return res.status(400).json({
-                success:false,
-                message:'Nothing Detected'
-            })
-        }
-        const decoded = jwt.verify(token, process.env.JWTSECUREKEY);
-        const user = await userModel.findById(decoded.id)
-        if(!user){
-            return res.status(404).json({
-                success:false,
-                message:'No user foun permission denied'
-            })
-        }
+const changePassword = async (req, res) => {
+  try {
+    const { password } = req.body;
 
-        user.password = password
-        user.resetPassword = undefined
-        user.resetPasswordExpires = undefined
-        await user.save()
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
 
-        return res.status(200).json({
-            success:true,
-            message:'Password Successfully Changed!'
-        })
-
-    } catch (error) {
-        console.error(error)
-         return res.status(500).json({
-            success:false,
-            message:'Internal Server Error'
-        })
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
     }
-}
+
+    if (!password) {
+      return res.status(400).json({ success: false, message: "Nothing Detected" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWTSECUREKEY);
+
+    // ✅ support both token types
+    const userId = decoded.id || decoded.userId;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Invalid token payload" });
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "No user found" });
+    }
+
+    const salt = await bycrypt.genSalt(10);
+    const generateEncrptPassword = await bycrypt.hash(password, salt);
+
+    user.password = generateEncrptPassword;
+    user.resetPassword = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    return res.status(200).json({ success: true, message: "Password Successfully Changed!" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
 
 const login = async(req,res)=>{
     try {
