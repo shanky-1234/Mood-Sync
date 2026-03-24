@@ -121,6 +121,52 @@ resetPasswordExpires: {
     createdAt:{
         type:Date,
         default:Date.now
+    },
+    notification:{
+        expopushToken:{
+            type:String,
+            default:null
+        },
+        reminderSetting:{
+            checkInEnabled:{
+                type:Boolean,
+                default:true
+            },
+            journalEnabled:{
+                type:Boolean,
+                default:true
+            },
+            streakReminder:{
+                type:Boolean,
+                default:true
+            }
+        },
+    },
+    reminderTimes:{
+        checkInHours:{
+            type:Number,
+            default:20,
+            min:0,
+            max:23
+        },
+        checkInMinute:{
+            type:Number,
+            default:0,
+            min:0,
+            max:59
+        },
+        journalHours:{
+            type:Number,
+            default:20,
+            min:0,
+            max:23
+        },
+        journalMinute:{
+            type:Number,
+            default:0,
+            min:0,
+            max:59
+        }
     }
     //More to be added
 

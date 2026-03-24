@@ -58,7 +58,7 @@ const jounralService = {
     },
     getTodayJournal:async()=>{
         try {
-             const response = await api.delete(`journal/getTodayJournal`)
+             const response = await api.get(`journal/getTodayJournal`)
             return response.data
         } catch (error) {
             console.error(error)

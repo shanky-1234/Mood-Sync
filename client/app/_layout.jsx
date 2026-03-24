@@ -212,7 +212,7 @@ export default function RootLayout() {
       <StoredJournalProvider>
       <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
-          <PushnotificationManager>
+          <PushnotificationManager  >
           <RouteRoots />
           </PushnotificationManager>
         </SafeAreaView>

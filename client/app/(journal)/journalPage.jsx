@@ -387,8 +387,11 @@ const pickImage = async () => {
   
 
   const takePhoto = async() =>{
-    const permissionResult = ImagePicker.getCameraPermissionsAsync()
-  
+    const permissionResult = await ImagePicker.getCameraPermissionsAsync()
+    if(!permissionResult.granted){
+      Alert.alert("Permission required", "Camera access is required to take photo.");
+      return;
+    }
     const result = await ImagePicker.launchCameraAsync({
      mediaTypes: ['images'],
       allowsEditing: true,

@@ -1,8 +1,19 @@
 import React, { useEffect } from "react";
-import { Platform, View } from "react-native";
-import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import Constants from "expo-constants";
+import { setupNotification, registerForPushNotificationsAsync } from "../Service/notificationService";
+import { setupUserLocalReminders } from "../Service/reminderService";
+import api from "../Service/api";
+import { useSelector } from "react-redux";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldShowAlert: true,
+    shouldShowBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -15,74 +26,49 @@ Notifications.setNotificationHandler({
 });
 
 const PushnotificationManager = ({ children }) => {
+  const token = useSelector((state) => state.auth.token);
+  const isLoading = useSelector((state) => state.auth.isLoading);
 
   useEffect(() => {
-    const registerForNotifications = async () => {
-      let token;
+    const initNotifications = async () => {
+      if (isLoading || !token) return;
 
-      // Android channel
-      if (Platform.OS === "android") {
-        await Notifications.setNotificationChannelAsync("default", {
-          name: "default",
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: "#ff231f7c",
-        });
-      }
+      await setupNotification();
 
-      if (Device.isDevice) {
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
+      const expoPushToken = await registerForPushNotificationsAsync();
 
-        if (existingStatus !== "granted") {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
-
-        if (finalStatus !== "granted") {
-          console.warn("Failed to get push token permissions");
-          return;
-        }
-
+      if (expoPushToken) {
         try {
-          const projectId = Constants?.expoConfig?.extra?.eas?.projectId;
-          if (!projectId) {
-            console.error("No project ID found. Configure in app.json");
-            return;
-          }
-
-          token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
-          console.log("Push Token:", token);
-
-          // TODO: send this token to your backend
-          // await api.post("/notifications/register", { token });
+          await api.post("/noti/register-token", { token: expoPushToken });
+          console.log("Expo push token saved");
         } catch (error) {
-          console.error("Error getting push token:", error);
+          console.error("Token save error:", error?.response?.data || error.message);
         }
-      } else {
-        console.warn("Must use physical device for push notifications");
       }
+
+      await setupUserLocalReminders();
     };
 
-    registerForNotifications();
+    initNotifications();
 
-    const receivedSubscription = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        console.log("Notification Received:", notification.request.content.data);
-      }
-    );
+    const receivedSubscription =
+      Notifications.addNotificationReceivedListener((notification) => {
+        console.log("Notification received:", notification);
+      });
 
-    const responseSubscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        console.log("Notification Response:", response.notification.request.content.data);
-      }
-    );
+    const responseSubscription =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(
+          "Notification clicked:",
+          response.notification.request.content.data
+        );
+      });
 
     return () => {
       receivedSubscription.remove();
       responseSubscription.remove();
     };
-  }, []);
+  }, [token, isLoading]);
 
   return <>{children}</>;
 };

@@ -1,9 +1,16 @@
-const express = require('express')
-const sendNotification = require('../Controller/notiController')
-const verifyToken = require('../Middleware/user')
+const express = require('express');
+const router = express.Router();
 
-const router = express.Router()
+const {
+    registerPushToken,
+    updateReminderSettings,
+    sendTestPush
+} = require('../Controller/notiController');
 
-router.post('/sendNotification',verifyToken,sendNotification)
+const authMiddleware = require('../Middleware/user');
 
-module.exports = router
+router.post('/register-token', authMiddleware, registerPushToken);
+router.put('/reminder-settings', authMiddleware, updateReminderSettings);
+router.post('/test-push',authMiddleware,sendTestPush)
+
+module.exports = router;
