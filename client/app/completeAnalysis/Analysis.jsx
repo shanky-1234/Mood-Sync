@@ -140,7 +140,7 @@ const Analysis = () => {
           <Text style={{textAlign:'center'}}></Text>
         </View>
 
-        <View style={{ marginInline: 20, padding: 12 }}>
+        <View style={{ marginInline: 12, padding: 0 }}>
           <Text style={{ fontFamily: 'Fredoka-Medium', textAlign: 'center', color: Colors.primary, fontSize: 20 }}>
             This is how you felt
           </Text>
@@ -150,8 +150,9 @@ const Analysis = () => {
             energy={normalized.energyScore}
           />
 
-          {/* EMOTIONS */}
-          <View style={{ justifyContent: 'center', alignSelf: 'center', marginTop: 16, gap: 6 }}>
+          <View style={{ justifyContent: 'center', alignSelf: 'center',marginTop: 16, gap: 6 }}>
+            <Text style={{fontFamily:'Fredoka-Medium',color:Colors.primary,textAlign:'center'}}>Your Emotions</Text>
+            <View style={{flexDirection:'row',alignSelf:'center', flexWrap:'wrap',gap:4}}>
             {normalized.emotions.map((item, index) => (
               <Badge key={index} style={styles.badgeStyle}>
                 <Text style={{ fontFamily: 'Fredoka-Bold', color: '#fff' }}>
@@ -159,6 +160,7 @@ const Analysis = () => {
                 </Text>
               </Badge>
             ))}
+            </View>
           </View>
 
           {/* SCORES */}
@@ -171,11 +173,18 @@ const Analysis = () => {
             )}
           </View>
 
-          {/* SOLUTION */}
+
           <View style={{ backgroundColor: '#fff', padding: 20, borderRadius: 12, marginTop: 24 }}>
-            <Text style={{ fontFamily: 'JosefinSlab-SemiBold', fontSize: 16 }}>
-              "{normalized.causes}"
-            </Text>
+            <Text style={{fontFamily:'Fredoka-Medium',color:Colors.primary,textAlign:'center'}}>Causes For it</Text>
+             <View style={{flexDirection:'row',alignSelf:'center', flexWrap:'wrap',gap:4,marginTop:4}}>
+             {normalized.causes.map((item, index) => (
+              <Badge key={index} style={[styles.badgeStyle,{backgroundColor:Colors.secondary}]}>
+                <Text style={{ fontFamily: 'Fredoka-Bold', color: '#fff' }}>
+                  {item}
+                </Text>
+              </Badge>
+            ))}
+            </View>
           </View>
 
           <View style={{ marginTop: 24 }}>

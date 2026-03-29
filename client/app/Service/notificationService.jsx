@@ -20,6 +20,8 @@ export const registerForPushNotificationsAsync =async ()=>{
         return null
     }
 
+    console.log("Using Physical Device")
+
     const {status:existingStatus} = await Notifications.getPermissionsAsync()
     let finalStatus = existingStatus
 
@@ -44,6 +46,7 @@ export const registerForPushNotificationsAsync =async ()=>{
     }
 
     const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+    console.log(token)
     return token;
   } catch (error) {
     console.error("Error getting Expo push token:", error);

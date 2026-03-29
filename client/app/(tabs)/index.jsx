@@ -72,15 +72,25 @@ export default function Index() {
   const {dailyReward} = useSelector((state)=>state.dailyReward)
 
   const date = getCurrentDate(); // Get The Current Date Information (Today)
-  const fill =20
+  const currentStreak = userInfo?.streaks?.current ?? 0;
+  const longestStreak = userInfo?.streaks?.longest ?? 0;
+  const lastStreakDate = userInfo?.streaks?.lastDate
+    ? new Date(userInfo.streaks.lastDate).toLocaleDateString()
+    : null;
+  const streakHistory = Array.isArray(userInfo?.streakHistory) ? userInfo.streakHistory : [];
+  const hasStreakActivity = currentStreak > 0 || streakHistory.length > 0;
 
 useEffect(() => { // For widget
-    if (userInfo?.streaks?.current !== undefined && StreakWidget) {
-      StreakWidget.updateStreak(userInfo.streaks.current)
-        .then(() => console.log('Widget updated with streak:', userInfo.streaks.current))
+    if (currentStreak > 0 && StreakWidget) {
+      StreakWidget.updateStreak(currentStreak)
+        .then(() => console.log('Widget updated with streak:', currentStreak))
         .catch((error) => console.error('Error updating widget:', error));
     }
-  }, [userInfo?.streaks?.current]);
+  }, [currentStreak]);
+
+  // useEffect(()=>{
+  //    isTodayLocal(userInfo?.streaks.lastDate)
+  // },[])
 useFocusEffect(
   useCallback(() => {
     let isActive = true;
@@ -101,6 +111,7 @@ useFocusEffect(
         getMonth();
         displayCurrentWeek();
         getTime();
+       
       }
     };
 
@@ -136,35 +147,41 @@ useFocusEffect(
     setMonth(month);
   };
 
+const formatLocalDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
   
   //Function to get the current week and display dates accoring to it
   const displayCurrentWeek = () => {
-    const today = new Date();
-    const getTodayDay = today.getDay(); // Gets The current Day
-    const startOfWeek = new Date(today); // So the week always starts with sunday and the date changes accordingly
-    startOfWeek.setDate(today.getDate() - getTodayDay);
+  const today = new Date();
+  const getTodayDay = today.getDay();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - getTodayDay);
 
-    const week = [];
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(startOfWeek);
-      currentDate.setDate(startOfWeek.getDate() + i); //Gets All the week and the days
+  const week = [];
 
-      week.push({
-        id: i.toString(),
-        day: currentDate.toLocaleDateString("en-US", { weekday: "short" }),
-        date: currentDate.getDate().toString().padStart(2, "0"),
-        fullDate: currentDate.toISOString().split("T")[0],
-        isToday:
-          currentDate.getDate() === today.getDate() &&
-          currentDate.getMonth() === today.getMonth() &&
-          currentDate.getFullYear() === today.getFullYear(),
-      });
-    }
+  for (let i = 0; i < 7; i++) {
+    const currentDate = new Date(startOfWeek);
+    currentDate.setDate(startOfWeek.getDate() + i);
 
-    setWeek(week);
-    console.log(week);
-  };
+    week.push({
+      id: i.toString(),
+      day: currentDate.toLocaleDateString("en-US", { weekday: "short" }),
+      date: currentDate.getDate().toString().padStart(2, "0"),
+      fullDate: formatLocalDate(currentDate), // fixed
+      isToday:
+        currentDate.getDate() === today.getDate() &&
+        currentDate.getMonth() === today.getMonth() &&
+        currentDate.getFullYear() === today.getFullYear(),
+    });
+  }
+
+  setWeek(week);
+};
 
   const getTime = () =>{
     const date = new Date()
@@ -172,6 +189,11 @@ useFocusEffect(
     setTime(getTime)
    
   }
+
+const isTodayLocal = (streakHistory, itemDate) => {
+  if (!Array.isArray(streakHistory)) return false;
+  return streakHistory.includes(itemDate);
+};
 
 useEffect(() => {
   const loadBackground = async () => {
@@ -236,12 +258,16 @@ useEffect(() => {
                       color: "white",
                     }}
                   >
-                    {userInfo?.streaks?.current}
+                    {currentStreak}
                   </Text>
                 </View>
               </Badge>
-              
+
+          
             </View>
+
+           
+
           </View>
           <View style={style.miniProgressCalender}>
             <Text
@@ -254,6 +280,31 @@ useEffect(() => {
             >
               {month}
             </Text>
+            {lastStreakDate ? (
+              <Text
+                style={{
+                  fontFamily: "Fredoka-Regular",
+                  fontSize: 12,
+                  textAlign: "center",
+                  color: "#fff",
+                  marginBottom: 6,
+                }}
+              >
+                Last active: {lastStreakDate}
+              </Text>
+            ) : (
+              <Text
+                style={{
+                  fontFamily: "Fredoka-Regular",
+                  fontSize: 12,
+                  textAlign: "center",
+                  color: "#fff",
+                  marginBottom: 6,
+                }}
+              >
+                No streak activity yet
+              </Text>
+            )}
 
             <FlatList
               data={week}
@@ -261,7 +312,7 @@ useEffect(() => {
               contentContainerStyle={{
                 flexDirection: "row",
                 justifyContent: "center",
-                gap: 8,
+                gap: 4,
                 marginTop: 8,
               }}
                scrollEnabled={false}
@@ -272,12 +323,14 @@ useEffect(() => {
                       style={[
                         style.dateStyle,
                         item.isToday && style.activeDate,
+                        isTodayLocal(streakHistory, item.fullDate) ? style.streakDate : null,
+                        {position:'relative',overflow:'hidden'}
                       ]}
                     >
                       <Text
                         style={[
                           { fontFamily: "JosefinSlab-SemiBold" },
-                          item.isToday && { color: "#fff" },
+                          item.isToday && { color: "#fff" } ,
                         ]}
                       >
                         {item.day}
@@ -290,13 +343,24 @@ useEffect(() => {
                       >
                         {item.date}
                       </Text>
+                      { isTodayLocal(streakHistory, item.fullDate) &&
+                      <View style={{position:'absolute',bottom:0,right:-4,transform:[{ rotate: '-45deg' }]}}>
+                       <MaterialCommunityIcons name="fire" size={20} color="white" />
+                      </View>
+              }
                     </View>
+                      
                   </TouchableOpacity>
                 );
               }}
             />
          
           </View>
+           {!hasStreakActivity && (
+              <Text style={{ color: Colors.primary, marginTop: 8, textAlign: "center",fontFamily:'Fredoka-Medium', }}>
+                Start your first check-in to begin streak tracking.
+              </Text>
+            )}
            <View style={{marginVertical:16,backgroundColor:'#fff',padding:16,borderRadius:12,shadowOpacity:4,elevation:2}}>
             <Text style={{fontFamily:'Fredoka-Medium',color:Colors.primary,fontSize:20,textAlign:'center'}}>Your Level: {userInfo?.currentLvl}</Text>
               <ProgressBar progress={userInfo?.currentExp/userInfo?.maxExp} theme={{ colors: { primary: '#00E038' } }} style={{marginTop:8}}  />
@@ -393,7 +457,7 @@ useEffect(() => {
                   </Text>
                 </View>
                 <Image
-                  source={require("../../assets/icons/notebook.png")}
+                  source={require("../../assets/icons/checkin.png")}
                   style={{
                     width: 40,
                     height: 40,
@@ -469,7 +533,7 @@ useEffect(() => {
        <AnimatedCircularProgress
   size={80}
   width={8}
-  fill={fill}
+  fill={userInfo?.lastStressScore}
   tintColor={Colors.secondary}
   onAnimationComplete={() => console.log('onAnimationComplete')}
   padding={8}
@@ -478,7 +542,7 @@ useEffect(() => {
   backgroundColor="#fff" >
     {
       (fill)=>(
-        <Text style={{fontFamily:'Fredoka-Regular',fontSize:16, color:'#fff'}}>{fill || 0}</Text>
+        <Text style={{fontFamily:'Fredoka-Regular',fontSize:16, color:'#fff'}}>{userInfo?.lastStressScore}</Text>
       )
     }
     </AnimatedCircularProgress>
@@ -563,7 +627,7 @@ const style = StyleSheet.create({
   miniProgressCalender: {
     marginTop: 24,
     backgroundColor: "#5E4C4B",
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 12,
   },
   dateStyle: {
@@ -575,6 +639,10 @@ const style = StyleSheet.create({
   activeDate: {
     backgroundColor: "black",
     color: "#fff",
+  },
+  streakDate: {
+    backgroundColor: Colors.primary,
+    color:'#fff'
   },
   button: {
     marginTop: 24,

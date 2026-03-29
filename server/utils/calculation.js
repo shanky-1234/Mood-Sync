@@ -1,4 +1,5 @@
 const { updateJournal } = require("../Controller/journalController")
+const userModel = require("../Models/user-model")
 
 // For Mood Calculation
 const calculateMoodScore = (moodSlider)=>{
@@ -74,8 +75,8 @@ const updateStreaks = (user)=>{
     today.setHours(0,0,0,0)
 
     if (!user.streaks.lastDate) {
-        user.streaks.current = 0;   
-        user.streaks.longest = 0;
+        user.streaks.current = 1;   
+        user.streaks.longest = 1;
         user.streaks.lastDate = today;
         return { increased: true, broken: false };
     }
@@ -98,11 +99,35 @@ const updateStreaks = (user)=>{
         return {increased:true,broken:false}
     }
     else{ // if missed
-        user.streaks.current = 1
-        user.streaks.lastDate = new Date()  
-        return {increased:false,broken:true}
+        user.streaks.current = 1;
+        if (user.streaks.longest < 1) {
+            user.streaks.longest = 1;
+        }
+        user.streaks.lastDate = today;
+        return { increased: true, broken: true };
     }
 }
+
+const getDateKey = (date = new Date()) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+};
+
+const updateStreakHistory = (user, date = new Date()) => {
+    const dateKey = getDateKey(date);
+
+    if (!user.streakHistory) {
+        user.streakHistory = [];
+    }
+
+    if (!user.streakHistory.includes(dateKey)) {
+        user.streakHistory.push(dateKey);
+    }
+};
 
 module.exports = {
     calculateCheckInExp,
@@ -112,5 +137,6 @@ module.exports = {
     calculateMoodScore,
     updateLevel,
     updateStreaks,
-    updateJournal
+    updateJournal,
+    updateStreakHistory
 }

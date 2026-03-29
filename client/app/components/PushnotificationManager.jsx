@@ -31,12 +31,11 @@ const PushnotificationManager = ({ children }) => {
 
   useEffect(() => {
     const initNotifications = async () => {
-      if (isLoading || !token) return;
 
       await setupNotification();
 
       const expoPushToken = await registerForPushNotificationsAsync();
-
+      console.log(expoPushToken)
       if (expoPushToken) {
         try {
           await api.post("/noti/register-token", { token: expoPushToken });

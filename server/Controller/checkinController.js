@@ -9,6 +9,7 @@ const {
   calculateCheckInExp,
   calculateExpToNextLevel,
   updateLevel,
+  updateStreakHistory,
 } = require("../utils/calculation");
 const { analyzeJournal } = require("./journalController");
 const { getOrCreateDailyReward, updateDailyReward }
@@ -95,6 +96,7 @@ const createCheckIn = async (req, res) => {
     let streakInfo = { increased: false, broken: false };
     if (firstCheckIn) {
       streakInfo = updateStreaks(getUser);
+      updateStreakHistory(getUser, today);
     }
 
     const safeCauses = Array.isArray(causes) ? causes : [];

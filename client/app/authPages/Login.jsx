@@ -173,9 +173,11 @@ const Login = () => {
                   outlineColor="transparent"
                   placeholder="Enter Your Email"
                   placeholderTextColor="#A29999"
+                  textColor="#000"
                   left={<TextInput.Icon icon="email" color="#A29999" />}
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
+                    color: "#000",
                   }}
                   onChangeText={(email) => setEmail(email)}
                 />
@@ -189,10 +191,12 @@ const Login = () => {
                   outlineColor="transparent"
                   placeholder="Enter Your Password"
                   placeholderTextColor="#A29999"
+                  textColor="#000"
                   left={<TextInput.Icon icon="lock" color="#A29999" />}
                   right={onSecure ? <TextInput.Icon icon="eye" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)} /> :<TextInput.Icon icon="eye-off" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)} /> }
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
+                    color: "#000",
                   }}
                   onChangeText={(password) => setPassword(password)}
                 />

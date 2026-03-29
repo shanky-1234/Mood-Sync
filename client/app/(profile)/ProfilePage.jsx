@@ -199,14 +199,14 @@ const handleBackground =async(name)=>{
           <Text style={{fontFamily:'Fredoka-Medium',fontSize:24,marginTop:20,color:Colors.primary}}>
             Select Background
           </Text>
-        <ScrollView style={{width: "100%", gap: 12, marginTop:16}} horizontal={true} contentContainerStyle={{gap:12}} showsHorizontalScrollIndicator={false}>
+        <ScrollView style={{width: "100%", gap: 12, marginTop:16, overflow:'visible'}} horizontal={true} contentContainerStyle={{gap:12}} showsHorizontalScrollIndicator={false}>
           {
             background.map((items,key)=>{
               return(
-                <TouchableOpacity key={key} style={[{padding:4, borderWidth:1, borderRadius:20, borderColor:Colors.secondary, overflow:'hidden',justifyContent:'center',alignItems:'center'},items.name === activeBg && { backgroundColor:'#fecece', borderWidth:5 }]} disabled={items.unlock >= userInfo?.currentLvl} onPress={()=>handleBackground(items.name)}>
+                <TouchableOpacity key={key} style={[{padding:4, borderWidth:1, borderRadius:20, borderColor:Colors.secondary, overflow:'hidden',justifyContent:'center',alignItems:'center'},items.name === activeBg && { backgroundColor:'#fecece', borderWidth:5 }]} disabled={items.unlock > userInfo?.currentLvl} onPress={()=>handleBackground(items.name)}>
               <View style={{position:'relative'}}>
-                <Image source={items.image} style={[{width:200, height:100},items.unlock >= userInfo?.currentLvl && {opacity:0.5}]}resizeMode='contain'/>
-                  { items.unlock >= userInfo?.currentLvl &&
+                <Image source={items.image} style={[{width:200, height:100},items.unlock < userInfo?.currentLvl && {opacity:0.5}]}resizeMode='contain'/>
+                  { items.unlock > userInfo?.currentLvl &&
                   <View style={{position:'absolute',top:40,right:50,justifyContent:'center',alignContent:'center',alignItems:'center'}} >
                 <Fontisto name="locked" size={24} color={Colors.primary} />
                 <Text style={{textAlign:'center',fontFamily:'JosefinSlab-SemiBold',color:Colors.primary}}>Unlocks at level {items.unlock}</Text>
@@ -250,7 +250,7 @@ const handleBackground =async(name)=>{
    
         </View>
       </View>
-       <View style={{marginBottom:16}}>
+       <View style={{marginBottom:40}}>
      <Button
                     mode="contained"
                     style={[style.button]}

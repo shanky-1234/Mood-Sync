@@ -4,7 +4,7 @@ const Journal =  require('../Models/journal-model')
 const userModel = require('../Models/user-model')
 const User = require('../Models/user-model')
 const { journalAnalysis } = require('../Service/journalAnalysis')
-const { calculateJournalExp, updateLevel, calculateExpToNextLevel, updateStreaks } = require('../utils/calculation')
+const { calculateJournalExp, updateLevel, calculateExpToNextLevel, updateStreaks, updateStreakHistory } = require('../utils/calculation')
 const cloudinary = require('../config/cloudinary')
 const { updateDailyReward, getOrCreateDailyReward } = require('../Service/dailyRewardService')
 
@@ -444,6 +444,7 @@ const analyzeJournal = async (req,res)=>{
 
     if (!streakAlreadyUpdated) {
   streakInfo = updateStreaks(user)
+  updateStreakHistory(user,today)
 }
 
     const expEarned = calculateJournalExp(getJournal,user.streaks.current)
@@ -461,6 +462,7 @@ const analyzeJournal = async (req,res)=>{
     user.totalJournals += 1
     user.lastMoodScore = getJournal.analysis.scores.moodScore;
     user.lastEnergyScore = getJournal.analysis.scores.energyScore
+    user.lastStressScore = getJournal.analysis.scores.stressScore
     user.lastJournal = today
     user.lastSolution = getJournal.analysis.solution
 

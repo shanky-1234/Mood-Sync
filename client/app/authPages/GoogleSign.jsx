@@ -111,6 +111,7 @@ const GoogleSign = () => {
                                   mode="outlined"
                                   outlineColor="transparent"
                                   placeholderTextColor="#A29999"
+                                  textColor="#A29999"
                                   left={<TextInput.Icon icon="account" color="#A29999" />}
                                   contentStyle={{
                                     fontFamily: "Fredoka-Regular",
@@ -126,6 +127,7 @@ const GoogleSign = () => {
                   keyboardType="email-address"
                   mode="outlined"
                   outlineColor="transparent"
+                  textColor="#A29999"
                   placeholder="Enter Your Email"
                   placeholderTextColor="#A29999"
                   left={<TextInput.Icon icon="email" color="#A29999" />}
@@ -142,6 +144,7 @@ const GoogleSign = () => {
                       placeholder="Enter Age"
                       outlineColor="transparent"
                       placeholderTextColor="#A29999"
+                      textColor="#000"
                       left={<TextInput.Icon icon="account" color="#A29999" />}
                       contentStyle={{ fontFamily: "Fredoka-Regular" }}
                       onChangeText={(text) => setAge(text)}
@@ -161,6 +164,7 @@ const GoogleSign = () => {
                           backgroundColor: "#F5F5F5",
                           height: 56,
                           justifyContent: "center",
+                          
                         },
                         placeholder: {
                           fontFamily: "Fredoka-Regular",

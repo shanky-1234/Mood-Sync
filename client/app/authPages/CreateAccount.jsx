@@ -208,6 +208,7 @@ const handleGoogleSignIn = async () => {
               <View>
                 <TextInput
                   style={styles.input}
+                  textColor="#000"
                   keyboardType="default"
                   mode="outlined"
                   outlineColor="transparent"
@@ -216,6 +217,7 @@ const handleGoogleSignIn = async () => {
                   left={<TextInput.Icon icon="account" color="#A29999" />}
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
+                    color: "#000",
                   }}
                   value={fullname}
                   onChangeText={(fullname)=>setFullname(fullname)}
@@ -232,6 +234,7 @@ const handleGoogleSignIn = async () => {
                 <View style={{flexDirection:'column',width:'50%',height:'100%'}}>
                 <TextInput
                   style={[styles.input]}
+                  textColor="#000"
                   keyboardType="numeric"
                   mode="outlined"
                   outlineColor="transparent"
@@ -240,6 +243,7 @@ const handleGoogleSignIn = async () => {
                   left={<TextInput.Icon icon="account" color="#A29999" />}
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
+                    color: "#000",
                   }}
                   value={age}
                   maxLength={2}
@@ -294,6 +298,7 @@ const handleGoogleSignIn = async () => {
               <View>
                 <TextInput
                   style={styles.input}
+                  textColor="#000"
                   textContentType="emailAddress"
                   autoCapitalize="none"
                   keyboardType="email-address"
@@ -304,6 +309,7 @@ const handleGoogleSignIn = async () => {
                   left={<TextInput.Icon icon="email" color="#A29999" />}
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
+                    color: "#000",
                   }}
                   value={email}
                   onChangeText={(email)=>setEmail(email)}
@@ -315,6 +321,7 @@ const handleGoogleSignIn = async () => {
               <View>
                 <TextInput
                   style={styles.input}
+                  textColor="#000"
                   secureTextEntry={onSecure}
                   mode="outlined"
                   outlineColor="transparent"
@@ -324,6 +331,7 @@ const handleGoogleSignIn = async () => {
                   right={onSecure ? <TextInput.Icon icon="eye" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)}/> : <TextInput.Icon icon="eye-off" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)}/>}
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
+                    color: "#000",
                   }}
                   value={password}
                   onChangeText={(password)=>setPassword(password)}
@@ -332,6 +340,7 @@ const handleGoogleSignIn = async () => {
               <View>
                 <TextInput
                   style={styles.input}
+                  textColor="#000"
                   secureTextEntry={onSecureTwo}
                   mode="outlined"
                   outlineColor="transparent"
@@ -341,6 +350,7 @@ const handleGoogleSignIn = async () => {
                   right={onSecureTwo ? <TextInput.Icon icon="eye" color="#A29999" onPress={()=>setOnSecureTwo(prev=>!prev)}/> : <TextInput.Icon icon="eye-off" color="#A29999" onPress={()=>setOnSecureTwo(prev=>!prev)}/>}
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
+                    color: "#000",
                   }}
                   value={confirmPassword}
                   onChangeText={(confirmPassword)=>setConfirmPassword(confirmPassword)}
@@ -479,6 +489,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: "#F5F5F5",
     borderRadius: 12,
+    color: "#000",
   },
   button: {
     marginTop: 24,

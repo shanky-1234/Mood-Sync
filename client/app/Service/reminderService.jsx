@@ -9,18 +9,21 @@ export const setupUserLocalReminders = async () => {
     await cancelAllScheduledNotifications();
 
     const now = new Date();
-    let hour = now.getHours();
-    let firstMinute = now.getMinutes() + 1;
-    let secondMinute = now.getMinutes() + 2;
+    // let hour = now.getHours();
+    let hour = 13
+    // let firstMinute = now.getMinutes() + 1; 
+    let firstMinute = 24
+    // let secondMinute = now.getMinutes() + 2;
+    let secondMinute = 23
 
-    if (firstMinute >= 60) {
-      firstMinute = 0;
-      hour = (hour + 1) % 24;
-    }
+    // if (firstMinute >= 60) {
+    //   firstMinute = 0;
+    //   hour = (hour + 1) % 24;
+    // }
 
-    if (secondMinute >= 60) {
-      secondMinute = secondMinute - 60;
-    }
+    // if (secondMinute >= 60) {
+    //   secondMinute = secondMinute - 60;
+    // }
 
     const checkInId = await scheduleDailyReminder({
       hour,
@@ -28,7 +31,7 @@ export const setupUserLocalReminders = async () => {
       title: "Check-In Reminder",
       body: "Take a moment to complete your daily check-in.",
       data: { type: "checkin_local" },
-    });
+    },);
 
     const journalId = await scheduleDailyReminder({
       hour,
@@ -63,7 +66,7 @@ export const testScheduledNotification = async () => {
         data: { type: "scheduled_test" },
       },
       trigger: {
-        seconds: 30,
+        seconds: 15,
       },
     });
 

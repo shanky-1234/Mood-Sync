@@ -114,6 +114,12 @@ resetPasswordExpires: {
         min:0,
         max:100
     },
+    lastStressScore:{
+        type:Number,
+        default:null,
+        min:0,
+        max:100
+    },
     lastSolution:{
         type:String,
         trim:true
@@ -121,6 +127,10 @@ resetPasswordExpires: {
     createdAt:{
         type:Date,
         default:Date.now
+    },
+    streakHistory:{
+        type:[String],
+        default:[]
     },
     notification:{
         expopushToken:{
