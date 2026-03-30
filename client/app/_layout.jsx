@@ -45,7 +45,11 @@ useEffect(() => {
             setIsLoggedIn(true);
 
             if (segment[0] === "authPages") {
+             if (parsed.hasCompletedOnboarding) {
               router.replace("/(tabs)");
+    } else {
+      router.replace("/(onboarding)/FirstPage");
+    }
             }
             return; 
           } else {
@@ -76,7 +80,11 @@ useEffect(() => {
             dispatch(setToken(tokenData));
 
             if (segment[0] === "authPages") {
-              router.replace("/(tabs)");
+              if (parsed.hasCompletedOnboarding) {
+    router.replace("/(tabs)");
+  } else {
+    router.replace("/(onboarding)/FirstPage");
+  }
             }
             return; 
           }
@@ -101,7 +109,7 @@ useEffect(() => {
  
 
   return (
-    <Stack>
+    <Stack screenOptions={{ animation: 'fade', animationDuration: 350 }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="authPages/Login" options={{ headerShown: false }} />
       <Stack.Screen
@@ -148,6 +156,7 @@ useEffect(() => {
         name="(profile)"
         options={{headerShown: false}}
       />
+      <Stack.Screen name="(onboarding)" options={{headerShown:false}}/>
       <Stack.Screen name="completeAnalysis/analysisComplete"
         options={{headerShown:false}}/>
       

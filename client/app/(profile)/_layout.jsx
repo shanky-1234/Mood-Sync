@@ -12,6 +12,8 @@ const Layout = () => {
         <Stack.Screen name='ProfilePage' options={{title:'My Profile',headerStyle:{backgroundColor:'#FBE7E5'},headerLeft:()=>(
                 <Ionicons name="arrow-back" size={32} color={Colors.primary} onPress={()=>router.replace('/(tabs)')}/>
         ),headerShadowVisible:false,headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary}}}/>
+
+        <Stack.Screen name='UpdatePassword' options={{headerShown:false}}/>
        
     </Stack>
   )

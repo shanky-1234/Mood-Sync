@@ -1,5 +1,5 @@
 const express = require('express')
-const { registerUser, login,logout, getUserData, googleAuth, verifyEmail, changePasswordRequest, verifyCodePassword, changePassword } = require('../Controller/authController')
+const { registerUser, login,logout, getUserData, googleAuth, verifyEmail, changePasswordRequest, verifyCodePassword, changePassword, updatePassword, completeOnboarding } = require('../Controller/authController')
 const verifyToken = require('../Middleware/user')
 
 
@@ -21,6 +21,8 @@ router.post('/verify-email', verifyEmail)
 router.post('/changePasswordRequest',changePasswordRequest)
 router.post('/verify-request',verifyCodePassword)
 router.post('/changePassword',changePassword)
+router.put('/updatePassword',verifyToken,updatePassword)
+router.post('/completeOnboarding',verifyToken,completeOnboarding)
 
 
 module.exports = router

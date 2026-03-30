@@ -130,8 +130,12 @@ const Login = () => {
         dispatch(setToken(response.generateToken))
         console.log("loggedinsuccessfully");
         console.log(response)
-        
-        router.replace("/(tabs)");
+        if(response.getUser.hasCompletedOnboarding){
+             router.replace("/(tabs)");
+             return
+        }
+        router.replace("/(onboarding)/FirstPage")
+       
       }
 
     } catch (error) {

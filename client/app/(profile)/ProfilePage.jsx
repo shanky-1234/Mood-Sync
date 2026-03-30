@@ -238,7 +238,7 @@ const handleBackground =async(name)=>{
         </View>
         <View style={{marginTop:24}}>
           { !isGoogleAccount &&
-          <TouchableOpacity style={style.card}>
+          <TouchableOpacity style={style.card} onPress={()=>router.replace('./UpdatePassword')}>
       <View style={{flexDirection:"row", alignItems:'center',width:'100%', gap:12,}}>
     
      <Text style={style.cardText}><Text>Update Password</Text></Text>
@@ -247,6 +247,8 @@ const handleBackground =async(name)=>{
      
     </TouchableOpacity>
 }
+
+<Link href={'../(onboarding)/FirstPage'}>Onboarding</Link>
    
         </View>
       </View>

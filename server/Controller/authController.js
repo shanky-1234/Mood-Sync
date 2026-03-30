@@ -414,4 +414,81 @@ const verifyCodePassword = async(req,res)=>{
     }
 }
 
-module.exports = {login,registerUser,logout,getUserData,googleAuth,verifyEmail,changePasswordRequest,verifyCodePassword,changePassword}
+const updatePassword = async(req,res)=>{
+    const userId = req.user.userId
+    const {oldPassword,newPassword} = req.body
+
+    if(!userId){
+        return res.status(403).json({
+            success:false,
+            message:'User ID Not Found'
+        })
+    }
+
+    if(!oldPassword || !newPassword){
+        return res.status(400).json({
+            success:false,
+            message:'Fields Are Empty'
+        })
+    }
+
+    const user = await userModel.findById(userId)
+
+    if(!user){
+        return res.status(403).json({
+            success:false,
+            message:'User ID Not Found'
+        })
+    }
+
+    const compare = await bycrypt.compare(oldPassword,user.password)
+
+     if(!compare){
+        return res.status(403).json({
+            success:false,
+            message:"Invalid Password"
+        })
+    }
+
+    const salt = await bycrypt.genSalt(10)
+    const generateEncrptPassword = await bycrypt.hash(newPassword,salt)
+
+    user.password = generateEncrptPassword
+    await user.save()
+
+    return res.status(200).json({
+        success:true,
+        message:'Password Updated Successfully'
+    })
+    
+    
+}
+const completeOnboarding = async(req,res)=>{
+    const userId = req.user.userId
+
+    if(!userId){
+         return res.status(403).json({
+            success:false,
+            message:'User ID Not Found'
+        })
+    }
+
+    const user = await userModel.findById(userId)
+
+     if(!user){
+        return res.status(403).json({
+            success:false,
+            message:'User ID Not Found'
+        })
+    }
+
+    user.hasCompletedOnboarding = true
+    await user.save()
+
+    return res.status(200).json({
+        success:true,
+        message:"Onboarding Complete"
+    })
+}
+
+module.exports = {login,registerUser,logout,getUserData,googleAuth,verifyEmail,changePasswordRequest,verifyCodePassword,changePassword,updatePassword,completeOnboarding}

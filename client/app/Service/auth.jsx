@@ -164,6 +164,30 @@ const authService = {
     console.error(error)
     throw error
   }
+  },
+  updatePassword:async(oldPassword,newPassword,token) =>{
+    try{
+    const response = await api.put('auth/updatePassword',{oldPassword,newPassword},{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+    return response.data
+  }
+  catch(error){
+    console.error(error)
+    throw error
+  }
+  },
+  completeOnboarding:async()=>{
+     try{
+    const response = await api.post('auth/completeOnboarding')
+    return response.data
+  }
+  catch(error){
+    console.error(error)
+    throw error
+  }
   }
 };
 

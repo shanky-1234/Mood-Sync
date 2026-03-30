@@ -177,8 +177,12 @@ resetPasswordExpires: {
             min:0,
             max:59
         }
+    },
+    hasCompletedOnboarding:{
+        type:Boolean,
+        default:false
     }
-    //More to be added
+    
 
 },{timestamps:true})
 

@@ -1,6 +1,6 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, Animated, ActivityIndicator, Easing } from "react-native";
 import { Calendar } from "react-native-calendars";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { globalStyle } from "../Constants/globalStyles";
 import { Colors } from "../Constants/styleVariable";
 import jounralService from "../Service/journal";
@@ -15,6 +15,7 @@ const FullAnalysis = () => {
   const dispatch = useDispatch();
   const router = useRouter()
   const { isLoading } = useSelector((state) => state.auth);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const [journal, setJournal] = useState([]);
   const [checkIns,setCheckIns] = useState([])
   const [date, setDate] = useState(getToday()); // Selected date
@@ -64,6 +65,19 @@ const FullAnalysis = () => {
     getJournal();
     getCheckIn()
   }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      fadeAnim.setValue(0);
+    } else {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 350,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isLoading, fadeAnim]);
 
   // Convert UTC ISO string to local "YYYY-MM-DD"
   const getLocalDateOnly = (isoString) => {
@@ -132,9 +146,19 @@ const sortByTime = filteredDate.sort((a, b) => new Date(a.createdAt) - new Date(
       year: "numeric",
     });
   };
-console.log(normalizeCheckins)
+
+  console.log(normalizeCheckins);
+
+  if (isLoading) {
+    return (
+      <View style={[{ flex: 1, justifyContent:'center', alignItems:'center', backgroundColor: '#FBE7E5' }]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
+
   return (
-    <View style={[{ flex: 1, backgroundColor: "#FBE7E5" }, globalStyle.container]}>
+    <Animated.View style={[{ flex: 1, backgroundColor: "#FBE7E5", opacity: fadeAnim }, globalStyle.container]}>
       <View style={{ marginTop: 20, flex: 1 }}>
         <Text style={{ fontSize: 24, fontFamily: "Fredoka-Medium", color: Colors.primary }}>
           {date === getToday() ? "Today" : formatDate(date)}
@@ -193,7 +217,7 @@ console.log(normalizeCheckins)
 </ScrollView>
 
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
