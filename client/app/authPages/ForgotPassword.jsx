@@ -53,7 +53,8 @@ const ForgotPassword = () => {
   const handleVerification = async () => {
   
     if (!email) {
-      setDialougeTitle("Fields Are Empty");
+      setDialougeTitle("Provide your email");
+      setDialougeContent("Without your email. We can't help you.")
       setVisible(true);
       return
     }
@@ -80,8 +81,8 @@ const ForgotPassword = () => {
       console.error(error);
       
       const message = error.message || 'Error occured';
-     setDialougeTitle("Login Error");
-      setDialougeContent(message);
+     setDialougeTitle("No Registered Email");
+      setDialougeContent("");
       setVisible(true)
     } finally {
       dispatch(setLoading(false));
@@ -115,6 +116,7 @@ const ForgotPassword = () => {
                   outlineColor="transparent"
                   placeholder="Enter Your Email"
                   placeholderTextColor="#A29999"
+                  textColor="black"
                   left={<TextInput.Icon icon="email" color="#A29999" />}
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
@@ -177,7 +179,7 @@ const ForgotPassword = () => {
         </View>
         <View>
           <Portal>
-            <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+            <Dialog visible={visible} onDismiss={() => setVisible(false)} style={{backgroundColor:'white'}}>
               <Image
                 source={require("../../assets/mascot/dialouge.png")}
                 resizeMode="contain"
@@ -243,6 +245,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: "#F5F5F5",
     borderRadius: 12,
+    color:'black'
   },
   button: {
     marginTop: 24,

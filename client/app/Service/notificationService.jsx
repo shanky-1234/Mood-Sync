@@ -2,6 +2,7 @@ import { Platform } from "react-native";
 import * as Device from 'expo-device'
 import * as Notifications from 'expo-notifications'
 import Constants from 'expo-constants'
+import api from './api'
 
 export const setupNotification=async()=> {
     if(Platform.OS === 'android'){
@@ -53,3 +54,14 @@ export const registerForPushNotificationsAsync =async ()=>{
     return null;
   }
 }
+
+export const getNotifications = async () => {
+    try {
+        const response = await api.get('/noti/get-notifications');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        throw error;
+    }
+};
+

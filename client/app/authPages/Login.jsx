@@ -112,13 +112,14 @@ const Login = () => {
   
     if (!email || !password) {
       setDialougeTitle("Fields Are Empty");
+      setDialougeContent("Provide Your Email and Password")
       setVisible(true);
       return
     }
 
     if (!email.includes("@")) {
       setDialougeTitle("Email Not Valid");
-      setDialougeContent("");
+      setDialougeContent("Wow ? Email has @ in it.");
       setVisible(true);
       return
     }
@@ -142,8 +143,8 @@ const Login = () => {
       console.error(error);
       
       const message = error.message || 'Error occured';
-     setDialougeTitle("Login Error");
-      setDialougeContent(message);
+     setDialougeTitle("Invalid Credentials");
+      setDialougeContent("Password or Email may be wrong. Try with correct credentials");
       setVisible(true)
     } finally {
       dispatch(setLoading(false));
@@ -308,7 +309,7 @@ const Login = () => {
         </View>
         <View>
           <Portal>
-            <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+            <Dialog visible={visible} onDismiss={() => setVisible(false)} style={{backgroundColor:'white'}}>
               <Image
                 source={require("../../assets/mascot/dialouge.png")}
                 resizeMode="contain"

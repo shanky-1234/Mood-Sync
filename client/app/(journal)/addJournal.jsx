@@ -1,8 +1,8 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import React, { useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { globalStyle } from "../Constants/globalStyles";
-import { Button, TextInput } from "react-native-paper";
+import { Button, Dialog, PaperProvider, Portal, TextInput } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Colors } from "../Constants/styleVariable";
 import { FlatList } from "react-native";
@@ -11,6 +11,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../redux/slices/authSlice";
 
 const addJournal = () => {
+  const [visible,setVisible] = useState(false) 
+  const [dialougeTitle,setDialougeTitle] = useState('')
+  const [dialougeContent,setDialougeContent] = useState('')
+
   const dispatch = useDispatch()
   const { isLoading } = useSelector((state) => state.auth);
   const router = useRouter()
@@ -26,6 +30,9 @@ const addJournal = () => {
   const createJournal = async () =>{
      if(!title.trim()){
         console.log('Title Empty')
+        setVisible(true)
+        setDialougeTitle('Title is Empty')
+        setDialougeContent('Enter your title for the journey')
         return
      }
      console.log(selected)
@@ -45,12 +52,15 @@ const addJournal = () => {
       }
     } catch (error) {
        console.error(error)
+       
     }
     finally{
       dispatch(setLoading(false))
     }
   }
   return (
+    <PaperProvider>
+    <Portal>
     <View
       style={[globalStyle.container, { backgroundColor: "#FCE9E7", flex: 1 }]}
     >
@@ -63,6 +73,7 @@ const addJournal = () => {
         left={<TextInput.Icon icon="format-title" color="#A29999" />}
         placeholder="Enter the Title of Journal"
         placeholderTextColor={"#A29999"}
+        textColor="black"
         contentStyle={{
           fontFamily: "Fredoka-Regular",
         }}
@@ -129,6 +140,15 @@ const addJournal = () => {
         </Button>
       </View>
     </View>
+    <Dialog visible={visible} onDismiss={()=>setVisible(false)} style={{backgroundColor:'white'}}>
+      <Image source={require('../../assets/mascot/dialouge.png')} resizeMode="contain" style={{width:100,height:100,justifyContent:'center',alignSelf:'center',alignContent:'center'}}/>
+             <Dialog.Title style={{fontFamily:'Fredoka-Semibold', color:Colors.primary, textAlign:'center'}}>{dialougeTitle && dialougeTitle}</Dialog.Title>
+             <Dialog.Content>
+               <Text variant="bodyMedium" style={{fontFamily:'Fredoka-Regular', color:'black', textAlign:'center'}}>{dialougeContent && dialougeContent}</Text>
+             </Dialog.Content>
+      </Dialog>
+    </Portal>
+    </PaperProvider>
   );
 };
 

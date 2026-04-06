@@ -37,7 +37,10 @@ const JournalPage = () => {
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.auth);
   const [isListening, setIsListening] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+  const [infoDialogVisible, setInfoDialogVisible] = useState(false);
+  const [infoDialogTitle, setInfoDialogTitle] = useState("");
+  const [infoDialogContent, setInfoDialogContent] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [color, setColor] = useState("");
@@ -151,7 +154,7 @@ useEffect(() => {
       const response = await jounralService.deleteJournal(id);
       if (response.success) {
         console.log(response);
-        setVisible(false);
+        setDeleteDialogVisible(false);
         router.replace("../(tabs)/MyJournals");
       }
     } catch (error) {
@@ -250,6 +253,14 @@ useEffect(() => {
   const analyzeAI =async(id)=>{
     console.log('AI Analysis')
     if (!id) return
+
+    if (!content?.trim()) {
+      setInfoDialogTitle('Nothing to Analyze')
+      setInfoDialogContent('Please write something in your journal before pressing Analysis.')
+      setInfoDialogVisible(true)
+      return
+    }
+
     try {
       console.log('AI Analysis started')
       setAnalyzing(true)
@@ -272,7 +283,12 @@ useEffect(() => {
       }
       
     } catch (error) {
-      console.error('An error Occured')
+      console.error('An error Occured', error)
+      setInfoDialogTitle('Analysis Error')
+      setInfoDialogContent(
+        error?.response?.data?.message || error?.message || 'Unable to analyze journal. Please try again.'
+      )
+      setInfoDialogVisible(true)
     }
     finally{
        dispatch(setLoading(false));
@@ -449,7 +465,7 @@ const pickImage = async () => {
             <TouchableOpacity onPress={handleBackPress} disabled={uploading}>
               <Ionicons name="arrow-back" size={32} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setVisible(true)} disabled={uploading}>
+            <TouchableOpacity onPress={() => setDeleteDialogVisible(true)} disabled={uploading}>
               <MaterialIcons name="delete-outline" size={32} color="white" />
             </TouchableOpacity>
           </View>
@@ -583,7 +599,7 @@ const pickImage = async () => {
         </View>
               
         <Portal>
-          <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+          <Dialog visible={deleteDialogVisible} onDismiss={() => setDeleteDialogVisible(false)}>
             <Image
               source={require("../../assets/mascot/dialouge.png")}
               resizeMode="contain"
@@ -619,9 +635,57 @@ const pickImage = async () => {
               <Button style={styles.button}>
                 <Text
                   style={{ fontFamily: "Fredoka-Regular", color: color }}
-                  onPress={() => setVisible(false)}
+                  onPress={() => setDeleteDialogVisible(false)}
                 >
                   Cancel
+                </Text>
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+
+        <Portal>
+          <Dialog visible={infoDialogVisible} onDismiss={() => setInfoDialogVisible(false)} style={{backgroundColor:'white'}}>
+            <Image
+              source={require("../../assets/mascot/dialouge.png")}
+              resizeMode="contain"
+              style={{
+                width: 100,
+                height: 100,
+                justifyContent: "center",
+                alignSelf: "center",
+                alignContent: "center",
+              }}
+            />
+            <Dialog.Title
+              style={{
+                fontFamily: "Fredoka-Medium",
+                fontSize: 20,
+                textAlign: "center",
+                color: color,
+              }}
+            >
+              {infoDialogTitle}
+            </Dialog.Title>
+            <Dialog.Content>
+              <Text
+                style={{
+                  fontFamily: "Fredoka-Regular",
+                  textAlign: "center",
+                }}
+              >
+                {infoDialogContent}
+              </Text>
+            </Dialog.Content>
+            <Dialog.Actions
+              style={{ alignContent: "center", alignSelf: "center" }}
+            >
+              <Button
+                style={[{ backgroundColor: color }, styles.button]}
+                onPress={() => setInfoDialogVisible(false)}
+              >
+                <Text style={{ fontFamily: "Fredoka-Regular", color: "#fff" }}>
+                  OK
                 </Text>
               </Button>
             </Dialog.Actions>

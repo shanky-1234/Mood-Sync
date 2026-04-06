@@ -1,4 +1,5 @@
 const User = require('../Models/user-model');
+const Notification = require('../Models/notification-model');
 const { Expo } = require('expo-server-sdk');
 
 const expo = new Expo();
@@ -58,13 +59,13 @@ const updateReminderSettings = async (req, res) => {
             userId,
             {
                 $set: {
-                    'notifications.reminderSettings.checkInEnabled': checkInEnabled,
-                    'notifications.reminderSettings.journalEnabled': journalEnabled,
-                    'notifications.reminderSettings.streakReminderEnabled': streakReminderEnabled,
-                    'notifications.reminderTimes.checkInHour': checkInHour,
-                    'notifications.reminderTimes.checkInMinute': checkInMinute,
-                    'notifications.reminderTimes.journalHour': journalHour,
-                    'notifications.reminderTimes.journalMinute': journalMinute,
+                    'notification.reminderSettings.checkInEnabled': checkInEnabled,
+                    'notification.reminderSettings.journalEnabled': journalEnabled,
+                    'notification.reminderSettings.streakReminderEnabled': streakReminderEnabled,
+                    'notification.reminderTimes.checkInHour': checkInHour,
+                    'notification.reminderTimes.checkInMinute': checkInMinute,
+                    'notification.reminderTimes.journalHour': journalHour,
+                    'notification.reminderTimes.journalMinute': journalMinute,
                 }
             },
             { new: true }
@@ -136,8 +137,42 @@ const sendTestPush = async (req, res) => {
     }
 };
 
+const getNotification = async (req,res)=>{
+    const userId = req.user.userId
+
+    if(!userId){
+        return res.status(403).json({
+            success:false,
+            message:"User ID Not Found"
+        })
+    }
+
+    try {
+        const notifications = await Notification.find({ userId })
+            .sort({ sentAt: -1 }) 
+            .select('-__v'); 
+
+        return res.status(200).json({
+            success: true,
+            message: "Notifications retrieved successfully",
+            notifications: notifications
+        });
+
+    } catch (error) {
+        console.error('getNotification error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message
+        });
+    }
+}
+
+
+
 module.exports = {
     registerPushToken,
     updateReminderSettings,
-    sendTestPush
+    sendTestPush,
+    getNotification
 };

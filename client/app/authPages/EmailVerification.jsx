@@ -13,20 +13,10 @@ import { globalStyle } from "../Constants/globalStyles";
 import { Button, TextInput, Portal,Dialog, PaperProvider, HelperText} from "react-native-paper";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { KeyboardAvoidingView } from "react-native";
-import RNPickerSelect from "react-native-picker-select";
-import AntDesign from '@expo/vector-icons/AntDesign';
 import { useState } from "react";
 import authService from "../Service/auth";
 import {useDispatch, useSelector} from 'react-redux'
 import { setIsGoogleAccount, setLoading, setToken, setUser } from "../redux/slices/authSlice";
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  isSuccessResponse,
-  isErrorWithCode,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
-import { useRoute } from "@react-navigation/native";
 import { OtpInput } from "react-native-otp-entry";
 import { useEffect } from "react";
 
@@ -43,23 +33,31 @@ const EmailVerification = () => {
     console.log(email)
   },[])
   const VerifyAccount = async () =>{
+    if(!codes){
+      setVisible(true)
+      setDialougeTitle("Enter your verification code")
+      setDialougeContent("Please type the code sent to your email before continuing.")
+      return
+    }
     try{
       dispatch(setLoading(true))
       const respone = await authService.verifyMail(email,codes)
-    if(respone){
-      
-      setVisible(true)
-      setDialougeTitle('Email Verified Successfully')
-      setDialougeContent('Login to begin your jounrey of peace 🧘‍♀️')
-      router.replace('./Login/')
-    }
+      if(respone){
+        setVisible(true)
+        setDialougeTitle('Email verified successfully')
+        setDialougeContent('Login to begin your journey of peace 🧘‍♀️')
+        router.replace('./Login/')
+      }
     }
     catch(error){
       console.log(error)
+      setVisible(true)
+      setDialougeTitle("Verification failed")
+      const message = error?.response?.data?.message || error?.message || "Please check your code and try again."
+      setDialougeContent(message)
     }finally{
       dispatch(setLoading(false))
     }
-    
   } 
   return (
     <PaperProvider>

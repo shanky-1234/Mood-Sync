@@ -1,42 +1,88 @@
 const cron = require('node-cron');
 const User = require('../Models/user-model');
-const { sendPushNotification } = require('../Service/expoNotificationService');
 const { isSameDay } = require('../utils/dateHelpers');
+const { createAndSendNotification } = require('../Service/notificationService');
+
+let streakReminderTask = null;
 
 const startStreakReminderJob = () => {
-    cron.schedule('30 20 * * *', async () => {
-        try {
-            console.log('Running streak reminder job...');
+  if (streakReminderTask) {
+    console.log('Streak reminder job already running. Skipping duplicate start.');
+    return;
+  }
 
-            const users = await User.find({
-                'notification.expopushToken': { $ne: null },
-                'notification.reminderSettings.streakReminderEnabled': true
-            });
+  const cronExpression = process.env.STREAK_REMINDER_CRON || '*/2 * * * *';
+  const timezone = process.env.STREAK_REMINDER_TIMEZONE || 'Asia/Kathmandu';
 
-            const today = new Date();
+  console.log(`Starting streak reminder cron job: ${cronExpression} (${timezone})`);
 
-            for (const user of users) {
-                const hasCheckedInToday = isSameDay(user.lastCheckIn, today);
+  streakReminderTask = cron.schedule(
+    cronExpression,
+    async () => {
+      try {
+        console.log('Running streak reminder job...');
 
-                if (!hasCheckedInToday) {
-                    await sendPushNotification({
-                        token: user.notification.expopushToken,
-                        title: "Don't lose your streak",
-                        body: "You haven’t checked in today. Open the app and keep your streak alive.",
-                        metadata: {
-                            type: 'streak_reminder',
-                            userId: user._id
-                        }
-                    });
-                }
+        const users = await User.find({
+          'notification.expopushToken': { $exists: true, $nin: [null, ''] },
+          'notification.reminderSetting.streakReminder': true
+        });
+
+        console.log('Matched users:', users.length);
+
+        const today = new Date();
+
+        for (const user of users) {
+          const hasCheckedInToday = user.lastCheckIn
+            ? isSameDay(user.lastCheckIn, today)
+            : false;
+
+          const hasSentReminderToday = user.lastStreakReminderSent
+            ? isSameDay(user.lastStreakReminderSent, today)
+            : false;
+
+          if (!hasCheckedInToday && !hasSentReminderToday) {
+            try {
+              await createAndSendNotification({
+                user,
+                title: "Don't lose your streak",
+                body: "You haven't checked in today.",
+                type: 'streak_reminder',
+                metadata: {
+                  type: 'streak_reminder',
+                  userId: user._id,
+                },
+              });
+
+              user.lastStreakReminderSent = today;
+              await user.save();
+
+              console.log(`Stored and sent streak reminder to user ${user._id}`);
+            } catch (error) {
+              console.error(`Failed for user ${user._id}:`, error.message);
             }
-
-        } catch (error) {
-            console.error('Streak reminder job error:', error);
+          } else {
+            console.log(`Skipping user ${user._id} because already checked in today or reminder already sent`);
+          }
         }
-    });
+      } catch (error) {
+        console.error('Streak reminder job error:', error);
+      }
+    },
+    {
+      timezone,
+    }
+  );
+};
+
+const stopStreakReminderJob = () => {
+  if (streakReminderTask) {
+    streakReminderTask.stop();
+    streakReminderTask = null;
+    console.log('Streak reminder job stopped.');
+  }
 };
 
 module.exports = {
-    startStreakReminderJob
+  startStreakReminderJob,
+  stopStreakReminderJob,
 };

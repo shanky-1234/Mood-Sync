@@ -218,7 +218,9 @@ useEffect(() => {
               />
             </View>
           </TouchableOpacity>
+          <TouchableOpacity onPress={()=>router.push('/(profile)/NotificationTab')}>
           <Appbar.Action icon="bell-outline" color={Colors.primary} />
+          </TouchableOpacity>
         </Appbar.Header>
         <View style={[style.mainContainer]}>
           <View

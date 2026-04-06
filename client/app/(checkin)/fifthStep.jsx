@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import StepProgress from '../components/StepProgress'
 import { globalStyle } from '../Constants/globalStyles'
-import { Button, TextInput } from 'react-native-paper'
+import { ActivityIndicator, Button, TextInput } from 'react-native-paper'
 import { useRouter } from 'expo-router'
 import { Colors } from '../Constants/styleVariable'
 import { useCheckIn } from '../Context/CheckinContext'
@@ -16,12 +16,12 @@ const fifthStep = () => {
   const [note,setNote] = useState(null)
   const currentStep=4
   const {isLoading} = useSelector(state=>state.auth)
-  const dispatchs = useDispatch()
   const router = useRouter()
   const {setCheckInResult} = useStoredCheckIn()
   const handleLinking = () =>{
     router.back()
   }
+  const reduxDispatch = useDispatch()
   const {state,dispatch} = useCheckIn()
   console.log(state)
   const handleText =(value)=>{
@@ -30,7 +30,7 @@ const fifthStep = () => {
   }
 
   const handleSubmit = async()=>{
-    dispatch(setLoading(true))
+    reduxDispatch(setLoading(true))
     try {
          const payload = {
       moodSlider: state.moodScore,
@@ -57,8 +57,31 @@ const fifthStep = () => {
       console.error(error)
     }
     finally{
-      dispatch(setLoading(false))
+     reduxDispatch(setLoading(true))
     }
+  }
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: Colors.primary,
+        }}
+      >
+        <ActivityIndicator size="large" color="#fff" />
+        <Text
+          style={{
+            marginTop: 16,
+            fontFamily: "Fredoka-Regular",
+            color: "#fff",
+          }}
+        >
+         Loading
+        </Text>
+      </View>
+    );
   }
   return (
 <View style={[globalStyle.container,{backgroundColor:'#FCE9E7',flex:1,}]}>

@@ -1,44 +1,28 @@
 import {
   cancelAllScheduledNotifications,
   scheduleDailyReminder,
+  getAllScheduledNotifications
 } from "../utils/notificationScheduler";
 import * as Notifications from "expo-notifications";
 
-export const setupUserLocalReminders = async () => {
+export const setupUserLocalReminders = async (setting,userId) => {
   try {
     await cancelAllScheduledNotifications();
 
-    const now = new Date();
-    // let hour = now.getHours();
-    let hour = 13
-    // let firstMinute = now.getMinutes() + 1; 
-    let firstMinute = 24
-    // let secondMinute = now.getMinutes() + 2;
-    let secondMinute = 23
-
-    // if (firstMinute >= 60) {
-    //   firstMinute = 0;
-    //   hour = (hour + 1) % 24;
-    // }
-
-    // if (secondMinute >= 60) {
-    //   secondMinute = secondMinute - 60;
-    // }
-
     const checkInId = await scheduleDailyReminder({
-      hour,
-      minute: firstMinute,
+      hour:setting.checkin.hour,
+      minute: setting.checkin.minute,
       title: "Check-In Reminder",
       body: "Take a moment to complete your daily check-in.",
-      data: { type: "checkin_local" },
+      data: { type: "checkin_local", userId },
     },);
 
     const journalId = await scheduleDailyReminder({
-      hour,
-      minute: secondMinute,
+      hour: setting.journal.hour,
+      minute: setting.journal.minute,
       title: "Journal Reminder",
       body: "Write a short journal entry for today.",
-      data: { type: "journal_local" },
+      data: { type: "journal_local", userId },
     });
 
     console.log("Check-in notification ID:", checkInId);

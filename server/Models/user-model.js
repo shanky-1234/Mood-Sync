@@ -178,6 +178,18 @@ resetPasswordExpires: {
             max:59
         }
     },
+    lastStreakReminderSent:{
+        type:Date,
+        default:null
+    },
+    lastJournalReminderSent: {
+    type: Date,
+    default: null
+},
+lastCheckInReminderSent: {
+    type: Date,
+    default: null
+},
     hasCompletedOnboarding:{
         type:Boolean,
         default:false

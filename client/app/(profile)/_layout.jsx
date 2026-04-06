@@ -14,6 +14,9 @@ const Layout = () => {
         ),headerShadowVisible:false,headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary}}}/>
 
         <Stack.Screen name='UpdatePassword' options={{headerShown:false}}/>
+         <Stack.Screen name="NotificationTab"
+        options={{headerShown:true, headerTitle:'Notifications', headerShadowVisible:false, headerStyle:{backgroundColor:'#fff'},headerTitleAlign:'center',headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary},
+        }} />
        
     </Stack>
   )

@@ -163,6 +163,7 @@ const MyJournals = () => {
               setVisible(false)
               setSelectedJournalId(null)
             }}
+            style={{backgroundColor:'white'}}
           >
             <Image
               source={require('../../assets/mascot/dialouge.png')}

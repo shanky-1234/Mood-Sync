@@ -430,16 +430,7 @@ const handleGoogleSignIn = async () => {
               >
                 Login Account
               </Link>
-               <Link
-                style={{
-                  color: Colors.primary,
-                  marginTop: 8,
-                  fontFamily: "Fredoka-Regular",
-                }}
-                href={"./EmailVerification/"}
-              >
-                Verification
-              </Link>
+            
             </View>
           </ScrollView>
        
@@ -448,7 +439,7 @@ const handleGoogleSignIn = async () => {
                                    
                                      <View>
                   <Portal>
-      <Dialog visible={visible} onDismiss={()=>setVisible(false)}>
+      <Dialog visible={visible} onDismiss={()=>setVisible(false)} style={{backgroundColor:'white'}}>
         <Image source={require('../../assets/mascot/dialouge.png')} resizeMode="contain" style={{width:100,height:100,justifyContent:'center',alignSelf:'center',alignContent:'center'}}/>
         <Dialog.Title style={{fontFamily:'Fredoka-Semibold', color:Colors.primary, textAlign:'center'}}>{dialougeTitle && dialougeTitle}</Dialog.Title>
         <Dialog.Content>

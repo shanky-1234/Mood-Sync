@@ -123,6 +123,7 @@ const ChangePassword = () => {
                                outlineColor="transparent"
                                placeholder="Enter Your Password"
                                placeholderTextColor="#A29999"
+                               textColor="black"
                                left={<TextInput.Icon icon="lock" color="#A29999" />}
                                right={onSecure ? <TextInput.Icon icon="eye" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)} /> :<TextInput.Icon icon="eye-off" color="#A29999" onPress={()=>setOnSecure(prev=>!prev)} /> }
                                contentStyle={{
@@ -186,7 +187,7 @@ const ChangePassword = () => {
         </View>
         <View>
           <Portal>
-            <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+            <Dialog visible={visible} onDismiss={() => setVisible(false)} style={{backgroundColor:'white'}}>
               <Image
                 source={require("../../assets/mascot/dialouge.png")}
                 resizeMode="contain"
