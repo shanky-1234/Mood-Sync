@@ -127,12 +127,12 @@ console.log(allSelectedValues);
       <View style={{paddingHorizontal:28}}>
       <TextInput
                   value={customInput}
-                  style={styles.input}
+                  style={[styles.input,{backgroundColor:'white'}]}
                   mode="outlined"
                   outlineColor="transparent"
                   placeholder="Enter Custom Word"
                   placeholderTextColor="#A29999"
-                  
+                  textColor="black"
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}

@@ -11,8 +11,10 @@ import checkInService, { registerCheckIn } from '../Service/checkin'
 import { useDispatch, useSelector } from 'react-redux'
 import { setLoading } from '../redux/slices/authSlice'
 import { useStoredCheckIn } from '../Context/StoredCheckIn'
+import { useCheckInAudio } from '../Context/CheckinAudioContext'
 
 const fifthStep = () => {
+  const { setIsCheckInSoundPlaying } = useCheckInAudio()
   const [note,setNote] = useState(null)
   const currentStep=4
   const {isLoading} = useSelector(state=>state.auth)
@@ -30,6 +32,7 @@ const fifthStep = () => {
   }
 
   const handleSubmit = async()=>{
+    setIsCheckInSoundPlaying(false)
     reduxDispatch(setLoading(true))
     try {
          const payload = {

@@ -466,6 +466,10 @@ const analyzeJournal = async (req,res)=>{
     user.lastJournal = today
     user.lastSolution = getJournal.analysis.solution
 
+        if(user.mascotOveride?.mode === 'angry'){
+      user.mascotOveride = undefined
+    }
+
     await user.save()
 
     await gamificationModel.create({

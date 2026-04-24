@@ -58,7 +58,7 @@ useEffect(() => {
             await AsyncStorage.removeItem("UserToken");
             dispatch(setUser(null));
             dispatch(setToken(null));
-            router.replace("/authPages/Login");
+            router.replace("/authPages/OnboardingAuth/");
             return;
           }
         } catch (error) {
@@ -70,7 +70,7 @@ useEffect(() => {
             await AsyncStorage.removeItem("UserToken");
             dispatch(setUser(null));
             dispatch(setToken(null));
-            router.replace("/authPages/Login");
+            router.replace("/authPages/OnboardingAuth/");
             return;
           } else {
             // Network issue — keep user
@@ -91,12 +91,12 @@ useEffect(() => {
         }
       } else {
         console.log("Async Storage Not Detected");
-        router.replace("/authPages/Login");
+        router.replace("/authPages/OnboardingAuth/");
         return;
       }
     } catch (error) {
       console.log("Error loading user data:", error);
-      router.replace("/authPages/Login");
+      router.replace("/authPages/OnboardingAuth/");
       return;
     } finally {
       dispatch(setLoading(false));
@@ -168,6 +168,14 @@ useEffect(() => {
 
            <Stack.Screen name="completeAnalysis/FullAnalysis"
         options={{headerShown:true, headerTitle:'Activities Today', headerShadowVisible:false, headerStyle:{backgroundColor:'#fff'},headerTitleAlign:'center',headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary},
+        }} />
+
+           <Stack.Screen name="games/beatup/main"
+        options={{headerShown:true, headerTitle:'Beat Up', headerShadowVisible:false, headerStyle:{backgroundColor:'#FBE5E3'},headerTitleAlign:'center',headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary},
+        }} />
+
+              <Stack.Screen name="games/breathe/main"
+        options={{headerShown:true, headerTitle:'Breathing Exercise', headerShadowVisible:false, headerStyle:{backgroundColor:'#FBE5E3'},headerTitleAlign:'center',headerTitleStyle:{fontFamily:'Fredoka-Bold',fontSize:28,color:Colors.primary},
         }} />
     
         

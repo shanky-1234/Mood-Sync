@@ -1,4 +1,26 @@
-export const getMoodState = (mood, energy) => {
+export const getMoodState = (mood, energy, mascotOverides) => {
+
+  const isAngryOverrideActive =
+    mascotOverides?.mode === "angry" &&
+    mascotOverides?.expiresAt &&
+    new Date(mascotOverides.expiresAt) > new Date();
+
+  if (isAngryOverrideActive) {
+    return {
+      key: "angry",
+      label: "Angry",
+      image: require("../../assets/mascot/angry.png"),
+    };
+  }
+
+  if (mood == null && energy == null) {
+    return {
+      key: "neutral",
+      label: "Balanced",
+      image: require("../../assets/mascot/neutral.png"),
+    };
+  }
+  
   if (mood >= 85 && energy >= 80) {
     return {
       key: 'excellent',
@@ -44,6 +66,14 @@ export const getMoodState = (mood, energy) => {
       key: 'sad',
       label: 'Sad & Low',
       image: require('../../assets/mascot/sad.png'),
+    };
+  }
+
+  if (mood === null && energy === null){
+    return {
+      key: 'neutral',
+      label: 'Balanced',
+      image: require('../../assets/mascot/neutral.png'),
     };
   }
 

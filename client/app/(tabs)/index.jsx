@@ -372,8 +372,9 @@ useEffect(() => {
           </View>
           <View style={{ marginTop: 28, position:'relative' }}>
             <LottieView source={backgroundMap[backgrounds]} autoPlay loop={true} style={{width:550,height:550,position:'absolute',bottom:30,right:0,left:-50}}/>
-            
-            <MoodSyncMascot mood={userInfo?.lastMoodScore || 55} energy={userInfo?.lastEnergyScore || 50}/>
+            { userInfo?.mascotOveride &&
+              <LottieView source={require('../../assets/Lottie/fire.json')} autoPlay loop={true} style={{width:400,height:400,position:'absolute',bottom:150,right:0,left:-50}}/>}
+            <MoodSyncMascot mood={userInfo?.lastMoodScore || 55} energy={userInfo?.lastEnergyScore || 50}  mascotOveride={userInfo?.mascotOveride}/>
             <Button style={style.button} onPress={()=>router.push('../completeAnalysis/FullAnalysis')}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Text

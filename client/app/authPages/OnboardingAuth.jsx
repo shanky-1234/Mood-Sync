@@ -83,6 +83,7 @@ const OnboardingAuth = () => {
             color: Colors.primary,
             marginTop: 16,
           }}
+          onPress={()=>router.replace('./CreateAccount')}
         >
           Create Account
         </Button>

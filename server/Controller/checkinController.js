@@ -130,6 +130,10 @@ const createCheckIn = async (req, res) => {
     getUser.lastMoodScore = moodScore;
     getUser.lastEnergyScore = energyScore;
     getUser.lastCheckIn = today;
+
+    if(getUser.mascotOveride?.mode === 'angry'){
+      getUser.mascotOveride = undefined
+    }
     
 
     await getUser.save();

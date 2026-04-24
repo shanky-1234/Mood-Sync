@@ -50,7 +50,7 @@ const loadReminderSettings = async () => {
   try {
     if (!userInfo?._id) return;
 
-    const stored = await AsyncStorage.getItem(`NotificationReminder_${userInfo._id}`);
+    const stored = await AsyncStorage.getItem(`NotificationReminder_${userInfo?._id}`);
     if (!stored) return;
 
     const parsed = JSON.parse(stored);
@@ -65,7 +65,7 @@ const loadReminderSettings = async () => {
 };
 
 useEffect(()=>{
-  if(userInfo._id){
+  if(userInfo?._id){
     loadReminderSettings()
   }
 },[userInfo?._id])
@@ -117,7 +117,7 @@ const handleLogout = async()=>{
 
 const handleLocalNotification = async() =>{
   try {
-    if(!userInfo._id) return
+    if(!userInfo?._id) return
 
      const settings = {
       journal: {
@@ -132,7 +132,7 @@ const handleLocalNotification = async() =>{
       },
     };
 
-    await AsyncStorage.setItem(`NotificationReminder_${userInfo._id}`,JSON.stringify(settings))
+    await AsyncStorage.setItem(`NotificationReminder_${userInfo?._id}`,JSON.stringify(settings))
     await setupUserLocalReminders(settings, userInfo._id);
     setVisible(false)
     console.log('New Noification Schedule Saved')
@@ -142,7 +142,7 @@ const handleLocalNotification = async() =>{
 }
 
 
-  const moodState = getMoodState(userInfo?.lastMoodScore,userInfo?.lastEnergyScore)
+  const moodState = getMoodState(userInfo?.lastMoodScore || 55,userInfo?.lastEnergyScore || 50)
 
 useFocusEffect(
   useCallback(() => {
@@ -180,7 +180,7 @@ const handleBackground =async(name)=>{
     <ScrollView style={[globalStyle.container,{backgroundColor:'#FBE7E5'}]}>
       <View style={{marginTop:24}}>
        <Image
-                         source={moodState.image}
+                         source={moodState.image }
                          resizeMode="contain"
                          style={{ justifyContent: "center", alignSelf: "center" }}
                          width={200}

@@ -11,7 +11,7 @@ const startJournalReminderJob = () => {
     return;
   }
 
-  const cronExpression = process.env.JOURNAL_REMINDER_CRON || '*/1 * * * *';
+  const cronExpression = process.env.JOURNAL_REMINDER_CRON || '*/2 * * * *';
   const timezone = process.env.JOURNAL_REMINDER_TIMEZONE || 'Asia/Kathmandu';
 
   console.log(`Starting journal reminder cron job: ${cronExpression} (${timezone})`);

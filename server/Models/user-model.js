@@ -124,6 +124,19 @@ resetPasswordExpires: {
         type:String,
         trim:true
     },
+    mascotOveride:{
+        mode:{
+            type:String,
+            enum: ['angry']
+        },
+        expiresAt:{
+            type:Date
+        },
+        source: {
+    type: String,
+    enum: ['anger_release'],
+  }
+    },
     createdAt:{
         type:Date,
         default:Date.now

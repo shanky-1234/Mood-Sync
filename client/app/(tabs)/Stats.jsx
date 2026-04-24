@@ -1,11 +1,15 @@
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ScrollView, Image } from 'react-native';
 import { LineChart, BarChart } from "react-native-gifted-charts";
-import { SegmentedButtons } from 'react-native-paper';
+import { Button, Dialog, PaperProvider, Portal, SegmentedButtons } from 'react-native-paper';
 import React, { useEffect, useState } from 'react';
 import { globalStyle } from '../Constants/globalStyles';
 import { Colors } from '../Constants/styleVariable';
 import checkInService from '../Service/checkin';
 import { subDays, format, isAfter } from 'date-fns';
+import { Link, useRouter } from 'expo-router';
+import { TouchableOpacity } from 'react-native';
+import LottieView from 'lottie-react-native';
+import { overideService } from '../Service/overide';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -13,6 +17,9 @@ const Home = () => {
   const [checkInData, setCheckInData] = useState([]);
   const [checkedValue, setCheckedValue] = useState('7D');
   const [filteredData, setFilteredData] = useState([]);
+  const [visible,setVisible] = useState(false)
+
+  const navigate = useRouter()
 
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
   const months = [
@@ -193,8 +200,23 @@ const buildThisYearMoodData = (checkIns) => {
     { value: 40 },
   ];
 
+  const handleBeatUpGame = async() =>{
+    try{
+      const result = await overideService.angerMode()
+      if (result.success){
+        console.log('Anger Mode Activated')
+        navigate.push('/games/beatup/main')
+      }
+      
+    }
+    catch(error){
+      console.error(error)
+    }
+    
+  }
   return (
-    <View style={[globalStyle.container, { backgroundColor: '#FBE7E5', flex: 1 }]}>
+    <PaperProvider>
+    <ScrollView style={[ {backgroundColor: '#FBE7E5', flex: 1, paddingLeft:28, paddingRight:28 }]} contentContainerStyle={{flexGrow: 1, paddingBottom: 24 }}>
       <SegmentedButtons
         style={styles.options}
         value={checkedValue}
@@ -212,7 +234,7 @@ const buildThisYearMoodData = (checkIns) => {
         }))}
       />
 
-      <View style={{ width: '100%', marginTop: 24 }}>
+      <View style={{ width: '100%', marginTop: 16 }}>
         <Text style={{ fontFamily: 'Fredoka-Medium', fontSize: 20, marginBottom: 16, color: Colors.primary }}>
           Mood Trends
         </Text>
@@ -234,8 +256,73 @@ const buildThisYearMoodData = (checkIns) => {
           startFillColor={Colors.secondary}
           endFillColor1={'rgba(255, 217, 212, 0.42)'}
         />
+        
       </View>
-    </View>
+      <View style={{marginTop:28}}>
+        <Text style={{fontFamily:'Fredoka-Semibold', fontSize:24, color:Colors.primary}}>Mood Mini Games</Text>
+        <Text style={{fontFamily:'Fredoka-Regular',color:Colors.secondary, marginTop:8}}>Lighten up playing these games</Text>
+      <View style={{flexDirection:'row', gap:12}}>
+        <TouchableOpacity style={{backgroundColor:Colors.primary,borderRadius:12,padding:16, width:'45%', height:120, position:'relative', overflow:'hidden',marginTop:12, marginBottom:20}} onPress={()=>setVisible(true)}>
+          <Text style={{fontSize:20, fontFamily:'Fredoka-Semibold', color:'white'}}>Beat Up</Text>
+          <View style={{width:80, height:80, position:'absolute',right:-10,bottom:-20,transform:[{rotate:'-10deg'}]}}>
+            <Image source={require('../../assets/mascot/angry.png')} style={{width:'100%',height:'100%'}} resizeMode='contain'/>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={{backgroundColor:Colors.primary,borderRadius:12,padding:16, width:'45%', height:120, position:'relative', overflow:'hidden',marginTop:12, marginBottom:20}} onPress={()=>navigate.push('/games/breathe/main')}>
+          <Text style={{fontSize:20, fontFamily:'Fredoka-Semibold', color:'white'}}>Breathe</Text>
+          <View style={{width:80, height:80, position:'absolute',right:-10,bottom:-20,transform:[{rotate:'10deg'}]}}>
+            <Image source={require('../../assets/mascot/cheerful.png')} style={{width:'100%',height:'100%'}} resizeMode='contain'/>
+          </View>
+        </TouchableOpacity>
+      </View>
+      </View>
+    </ScrollView>
+    <View>
+      {
+        visible &&
+      <LottieView source={require('../../assets/Lottie/fire.json')} autoPlay loop={true} style={{width:550,height:550,position:'absolute',bottom:0,right:0,left:-50}}/>
+      }
+       </View>
+    <Portal>
+       <Dialog visible={visible} onDismiss={() => setVisible(false)} style={{backgroundColor:'white'}}>
+              <Image
+                source={require("../../assets/mascot/angry.png")}
+                resizeMode="contain"
+                style={{
+                  width: 100,
+                  height: 100,
+                  justifyContent: "center",
+                  alignSelf: "center",
+                  alignContent: "center",
+                }}
+              />
+              <Dialog.Title
+                style={{
+                  fontFamily: "Fredoka-Semibold",
+                  color: Colors.primary,
+                  textAlign: "center",
+                }}
+              >
+               You are Angry And Frustuated
+              </Dialog.Title>
+              <Dialog.Content>
+                <Text
+                  variant="bodyMedium"
+                  style={{
+                    fontFamily: "Fredoka-Regular",
+                    color: "black",
+                    textAlign: "center",
+                  }}
+                >
+                  Beat Up game helps you unleash your frustuation in peace 🧘
+                </Text>
+              </Dialog.Content>
+              <Dialog.Actions style={{justifyContent:'center'}}>
+                <Button style={styles.button} textColor='white'  onPress={handleBeatUpGame}><Text style={{fontFamily:'Fredoka-Medium'}}>Unleash Your Anger</Text></Button>
+              </Dialog.Actions>
+            </Dialog>
+    </Portal>
+    </PaperProvider>
   );
 };
 
@@ -248,5 +335,15 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: "center",
     justifyContent: "center",
+  },
+   button: {
+    marginTop: 24,
+    backgroundColor: Colors.primary,
+    borderRadius: 8,
+    height: 56,
+    alignItems: "center",
+    alignContent: "center",
+    justifyContent: "center",
+    fontFamily:'Fredoka-Regular'
   },
 });

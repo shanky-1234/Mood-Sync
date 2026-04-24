@@ -11,7 +11,7 @@ const startCheckInReminderJob = () => {
     return;
   }
 
-  const cronExpression = process.env.CHECKIN_REMINDER_CRON || '*/1 * * * *';
+  const cronExpression = process.env.CHECKIN_REMINDER_CRON || '*/2 * * * *';
   const timezone = process.env.CHECKIN_REMINDER_TIMEZONE || 'Asia/Kathmandu';
 
   console.log(`Starting check-in reminder cron job: ${cronExpression} (${timezone})`);

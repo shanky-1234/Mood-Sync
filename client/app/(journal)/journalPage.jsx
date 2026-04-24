@@ -222,8 +222,15 @@ useEffect(() => {
       const res = await jounralService.updateJournal(journalId, payload);
       return res.success ? true : false;
     } catch (e) {
-      return false;
+       const status = e?.response?.status;
+    const message = e?.response?.data?.message;
+
+    if (status === 403 && message === "Journal not found or locked") {
+      return true; // silently ignore for demo
     }
+
+    return false;
+  }
   };
 
   const handleBackPress = async () => {
@@ -514,7 +521,7 @@ const pickImage = async () => {
             {photo.length > 0 &&
             photo.map((item,key)=>(
               <View key={key} style={{position:'relative'}}><Image source={{uri:item.url || item.uri}} style={{width:300,height:300,borderRadius:20,borderWidth:10,borderColor:'#fff'}}/>
-            <Image source={require('../../assets/icons/tape.png')} style={{position:'absolute', top:-10,right:40,width:80,height:80}}/>
+            <Image source={require('../../assets/icons/tape.png')} style={{position:'absolute', top:-10,right:0,width:80,height:80}}/>
             <Button disabled={uploading} onPress={()=>handleDeletePhoto(journalId,item._id)} style={[{position:'absolute',borderRadius:20,top:15,left:12,padding:1,backgroundColor:Colors.primary, width:'auto'},uploading && {backgroundColor:'#5d5d5d'}]}>{uploading ? <ActivityIndicator size="small"/> : <FontAwesome name="close" size={16} color="#fff" />}</Button>
             </View>
             ))

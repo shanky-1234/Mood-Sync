@@ -3,8 +3,8 @@ import { Colors } from '../../Constants/styleVariable'
 import React from 'react'
 import { getMoodState } from '../../utils/getMoodState'
 
-const MoodSyncMascot = ({mood,energy}) => {
-    const moodState = getMoodState(mood,energy)
+const MoodSyncMascot = ({mood,energy,mascotOveride}) => {
+    const moodState = getMoodState(mood,energy,mascotOveride)
   return (
     <>
     <Image

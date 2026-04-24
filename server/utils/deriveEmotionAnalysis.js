@@ -1,9 +1,3 @@
-/**
- * STEP 3: Derive emotional tone and arousal from top emotions
- * Input: [string] (top emotion labels)
- * Output: { tone: string, arousal: string }
- */
-
 const POSITIVE = new Set([
   "admiration",
   "amusement",

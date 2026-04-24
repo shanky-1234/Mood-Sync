@@ -1,72 +1,108 @@
-import { StyleSheet, Text, View } from 'react-native'
-import {useState,useEffect} from 'react'
-import { Stack, useRouter } from 'expo-router'
-import { Colors } from '../Constants/styleVariable'
-import { Button } from 'react-native-paper'
-import AntDesign from '@expo/vector-icons/AntDesign';
-import getCurrentDate from '../utils/getCurrentDate'
-import { useAudioPlayer } from 'expo-audio'
-import { useSelector } from 'react-redux'
+import { StyleSheet, Text, View } from "react-native";
+import { useEffect } from "react";
+import { Stack, useRouter } from "expo-router";
+import { Colors } from "../Constants/styleVariable";
+import { Button } from "react-native-paper";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import getCurrentDate from "../utils/getCurrentDate";
+import { useAudioPlayer } from "expo-audio";
+import { useSelector } from "react-redux";
+import {
+  CheckInAudioProvider,
+  useCheckInAudio,
+} from "../Context/CheckinAudioContext";
 
-const Layout = () => {
-  const [play,setPlay ] = useState(true)
-  const {isSound} = useSelector(state=>state.audio)
-    const player = useAudioPlayer(require('../../assets/audio/ambient.mp3'))
+const CheckInLayoutContent = () => {
+  const { isCheckInSoundPlaying, setIsCheckInSoundPlaying } = useCheckInAudio();
+  const { isSound } = useSelector((state) => state.audio);
+  const player = useAudioPlayer(require("../../assets/audio/ambient.mp3"));
+  const router = useRouter();
+  const date = getCurrentDate();
 
-    if(isSound){
-    const playBackground = async() =>{
-          try {
-            console.log('Play')
-            
-            player.volume = 0.2
-            player.play()
-          
-          } catch (error) {
-           console.log("Error loading sound:", error);
-          }
-        }
-        useEffect(()=>{
-          if(play){
-            playBackground()
-          }
-          return
-        },[])
-      }
-     
-    const date = getCurrentDate()
-    const router = useRouter()
+  useEffect(() => {
+  try {
+    if (isSound && isCheckInSoundPlaying) {
+      player.volume = 0.2;
+      player.play();
+    } else {
+      player.pause();
+    }
+  } catch (error) {
+    console.log("Audio error:", error);
+  }
+}, [isSound, isCheckInSoundPlaying]);
+ const handleSound = () => {
+  setIsCheckInSoundPlaying(false);
+
+  try {
+    player.pause();
+  } catch (e) {
+    console.log("Pause safely ignored");
+  }
+
+  router.replace("/(tabs)");
+};
+
   return (
-    <Stack screenOptions={{headerStyle:{
-        backgroundColor:'#FCE9E7',
-    },headerTitle:()=>(
-
-        <View style={{alignItems:'center',justifyContent:'center'}}>
-            <Text style={{
-                color: 'black',
+    <Stack
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: "#FCE9E7",
+        },
+        headerTitle: () => (
+          <View style={{ alignItems: "center", justifyContent: "center" }}>
+            <Text
+              style={{
+                color: "black",
                 fontFamily: "JosefinSlab-Bold",
                 fontSize: 16,
-              }}>{date}</Text>
-            <Text style={{
+              }}
+            >
+              {date}
+            </Text>
+            <Text
+              style={{
                 color: Colors.primary,
                 fontFamily: "Fredoka-Bold",
                 fontSize: 28,
-                marginTop:18
-              }}>Check-In</Text>
-        </View>
-    ),headerRight:()=>(
-        <Button style={{marginTop:28}}><AntDesign name="close" size={24} color={Colors.primary} onPress={()=>router.replace('/(tabs)')}/></Button>
-    ),headerTitleStyle:{color:Colors.primary,fontFamily:'Fredoka-Bold',fontSize:28},headerTitleAlign:'center',headerShadowVisible:false}}>
-        <Stack.Screen name='firstStep' options={{ headerShown:true}}/>
-          <Stack.Screen name='secondStep' options={{headerShown:true}}/>
-            <Stack.Screen name='thirdStep' options={{headerShown:true}}/>
-              <Stack.Screen name='fourthStep' options={{headerShown:true}}/>
-                <Stack.Screen name='fifthStep' options={{headerShown:true}}/>
-
-        
+                marginTop: 18,
+              }}
+            >
+              Check-In
+            </Text>
+          </View>
+        ),
+        headerRight: () => (
+          <Button style={{ marginTop: 28 }} onPress={handleSound}>
+            <AntDesign name="close" size={24} color={Colors.primary} />
+          </Button>
+        ),
+        headerTitleStyle: {
+          color: Colors.primary,
+          fontFamily: "Fredoka-Bold",
+          fontSize: 28,
+        },
+        headerTitleAlign: "center",
+        headerShadowVisible: false,
+      }}
+    >
+      <Stack.Screen name="firstStep" options={{ headerShown: true }} />
+      <Stack.Screen name="secondStep" options={{ headerShown: true }} />
+      <Stack.Screen name="thirdStep" options={{ headerShown: true }} />
+      <Stack.Screen name="fourthStep" options={{ headerShown: true }} />
+      <Stack.Screen name="fifthStep" options={{ headerShown: true }} />
     </Stack>
-  )
-}
+  );
+};
 
-export default Layout
+const Layout = () => {
+  return (
+    <CheckInAudioProvider>
+      <CheckInLayoutContent />
+    </CheckInAudioProvider>
+  );
+};
 
-const styles = StyleSheet.create({})
+export default Layout;
+
+const styles = StyleSheet.create({});

@@ -151,38 +151,7 @@ const ChangePassword = () => {
                 </View>
               </Button>
             </View>
-            <View
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                alignContent: "center",
-                marginTop: 60,
-              }}
-            >
-              <Text style={{ fontFamily: "Fredoka-Regular" }}>
-                Dont Have an Account ?
-              </Text>
-              <Link
-                style={{
-                  color: Colors.primary,
-                  marginTop: 8,
-                  fontFamily: "Fredoka-Regular",
-                }}
-                href={"./EmailVerificationPassword/"}
-              >
-                Create Account
-              </Link>
-               <Link
-                style={{
-                  color: Colors.primary,
-                  marginTop: 8,
-                  fontFamily: "Fredoka-Regular",
-                }}
-                href={"./OnboardingAuth/"}
-              >
-                What is Mood Sync ?
-              </Link>
-            </View>
+            
           </View>
         </View>
         <View>

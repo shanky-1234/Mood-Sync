@@ -160,7 +160,7 @@ const ForgotPassword = () => {
                   marginTop: 8,
                   fontFamily: "Fredoka-Regular",
                 }}
-                href={"./EmailVerificationPassword/"}
+                href={"./CreateAccount/"}
               >
                 Create Account
               </Link>

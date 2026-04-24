@@ -13,6 +13,7 @@ const journalRouter = require('./Routes/journalRoutes')
 const checkInRouter = require('./Routes/checkInRoutes')
 const streakRouter = require('./Routes/streakRoutes')
 const rewardRouter = require('./Routes/dailyRewardRoute')
+const overRideRouter = require('./Routes/overideRoutes')
 
 const app=express()
 
@@ -34,6 +35,7 @@ app.use('/api/v1/journal/',journalRouter)
 app.use('/api/v1/checkIn/',checkInRouter)
 app.use('/api/v1/streaks/',streakRouter)
 app.use('/api/v1/rewards/',rewardRouter)
+app.use('/api/v1/overide',overRideRouter)
 
 
 

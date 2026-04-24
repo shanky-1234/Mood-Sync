@@ -96,6 +96,8 @@ const CalenderManager = () => {
 
 const combinedData = [...normalizeCheckins,...normalizeJournals]
 
+
+
 const filteredDate = !isLoading ? 
 combinedData.filter((data)=>getLocalDateOnly(data.createdAt) === date):[]
 const sortByTime = filteredDate.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))

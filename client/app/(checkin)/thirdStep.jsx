@@ -150,7 +150,7 @@ console.log(allSelectedValues);
                   outlineColor="transparent"
                   placeholder="Enter Custom Word"
                   placeholderTextColor="#A29999"
-                  
+                  textColor="black"
                   contentStyle={{
                     fontFamily: "Fredoka-Regular",
                   }}
