@@ -1,47 +1,136 @@
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
+import { Animated, Easing, StyleSheet, Text, View, Dimensions, Image } from 'react-native';
 import { Button } from 'react-native-paper';
 import { Colors } from '../../Constants/styleVariable';
 import { useRouter } from 'expo-router';
 import LottieView from 'lottie-react-native';
-import { Image } from 'react-native';
+import { useAudioPlayer } from 'expo-audio';
+
 
 const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = width * 0.6;
 
 const BreathingGame = () => {
+  const BREATHING_TIME ={
+    inhale:4,
+    hold:2,
+    exhale:6
+  }
+  const BREATHE_MASCOT = {
+    inhale :require( '../../../assets/mascot/breathein.png'),
+    hold:require( '../../../assets/mascot/breathein.png'),
+    exhale:require('../../../assets/mascot/breatheout.png')
+  }
   const router = useRouter();
+  const [play,setPlay] = useState(false)
   const [isActive, setIsActive] = useState(false);
-  const [phase, setPhase] = useState('ready'); // ready, inhale, hold, exhale
+  const [phase, setPhase] = useState('ready'); 
   const [count, setCount] = useState(4);
   const [cycleCount, setCycleCount] = useState(0);
-  const animationRef = useRef(null);
+  const floatAnim = useRef(new Animated.Value(0)).current;
+  const audioPlayer = useAudioPlayer(require('../../../assets/audio/breathegame.mp3'))
+
+  const playBackgroundMusic = async()=>{
+    try{
+      audioPlayer.volume=0.3
+      audioPlayer.loop=true
+      audioPlayer.seekTo(0)
+      audioPlayer.play()
+
+    }
+    catch(e){
+      console.error(e)
+    }
+
+  }
+
+  const stopBackgroundMusic = async()=>{
+    try{
+      audioPlayer.pause()
+
+    }
+    catch(e){
+      console.error(e)
+    }
+  }
+  const getDuration = (phase)=>{
+    return BREATHING_TIME[phase] || 4
+  }
+
+  const getNextPhase = (currentPhase) =>{
+    if(currentPhase === 'inhale') return 'hold'
+     if (currentPhase === 'hold') return 'exhale';
+    if (currentPhase === 'exhale') return 'inhale';
+    return 'inhale';
+  }
 
   useEffect(() => {
     let interval;
+    if (play){
+      playBackgroundMusic()
+    }else{
+      stopBackgroundMusic()
+    }
     if (isActive) {
       interval = setInterval(() => {
         setCount((prev) => {
           if (prev <= 1) {
-            // Transition to next phase
-            setPhase((currentPhase) => {
-              if (currentPhase === 'ready') return 'inhale';
-              if (currentPhase === 'inhale') return 'hold';
-              if (currentPhase === 'hold') return 'exhale';
-              if (currentPhase === 'exhale') {
-                setCycleCount((c) => c + 1);
-                return 'inhale';
-              }
-              return currentPhase;
-            });
-            return 4;
+            setPhase((currentPhase)=>{
+              const nextPhase = getNextPhase(currentPhase)
+ 
+               if (currentPhase === 'exhale') {
+              setCycleCount((c) => c + 1);
+            }
+
+            setCount(getDuration(nextPhase))
+            return nextPhase
+            })
+
+            return prev;
           }
           return prev - 1;
         });
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isActive, phase]);
+  }, [isActive,play]);
+
+  useEffect(() => {
+    let idleLoop;
+    if (isActive) {
+      const targetValue = phase === 'exhale' ? 0 :1;
+      Animated.timing(floatAnim, {
+        toValue: targetValue,
+        duration: getDuration(phase) * 1000,
+        easing: Easing.inOut(Easing.sin),
+        useNativeDriver: true,
+      }).start();
+    } else {
+      idleLoop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(floatAnim, {
+            toValue: 0,
+            duration: 3000,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(floatAnim, {
+            toValue: 0,
+            duration: 3000,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ]),
+      );
+      idleLoop.start();
+    }
+
+    return () => {
+      if (idleLoop) {
+        idleLoop.stop();
+      }
+    };
+  }, [isActive, phase, floatAnim]);
 
   const getPhaseText = () => {
     switch (phase) {
@@ -72,16 +161,18 @@ const BreathingGame = () => {
   };
 
   const startBreathing = () => {
+    setPlay(true)
     setPhase('inhale');
-    setCount(4);
+    setCount(BREATHING_TIME.inhale);
     setCycleCount(0);
     setIsActive(true);
   };
 
   const stopBreathing = () => {
+    setPlay(false)
     setIsActive(false);
     setPhase('ready');
-    setCount(4);
+    setCount(BREATHING_TIME.inhale);
   };
 
   const goBack = () => {
@@ -89,48 +180,38 @@ const BreathingGame = () => {
     router.back();
   };
 
+  const floatTranslate = floatAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -14],
+  });
+
+  const floatScale = floatAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.025],
+  });
+
   return (
     <View style={styles.container}>
       {/* Background animation */}
-      {isActive && (
-        <LottieView
-          source={require('../../../assets/Lottie/clouds.json')}
-          autoPlay
-          loop
-          style={styles.backgroundAnimation}
-        />
-      )}
+
 
       <View style={styles.content}>
-        {/* Mascot */}
-        <View style={styles.mascotContainer}>
-          <Image
-            source={require('../../../assets/mascot/cheerful.png')}
-            style={styles.mascot}
-            resizeMode="contain"
-          />
+        <Animated.View style={[styles.mascotContainer, { transform: [{ translateY: floatTranslate }, { scale: floatScale }] }]}> 
+          { !isActive ?
+          <Image source={require('../../../assets/mascot/breathedefault.png')} style={styles.mascot} resizeMode='contain'/> :
+          (
+            <Image source={BREATHE_MASCOT[phase]} style={styles.mascot} resizeMode='contain'/>
+          )
+          }
+        </Animated.View>
+        <View style={{marginBottom:12}}>
+          <Text style={{fontFamily:'Fredoka-Bold',color:Colors.primary,fontSize:28}}>{phase.toUpperCase()}</Text>
         </View>
-
-        {/* Breathing Circle */}
-        <View style={styles.circleContainer}>
-          <View
-            style={[
-              styles.breathingCircle,
-              {
-                transform: [{ scale: getCircleScale() }],
-              },
-            ]}
-          >
-            <Text style={styles.phaseText}>{getPhaseText()}</Text>
-            {isActive && <Text style={styles.countText}>{count}</Text>}
-          </View>
-        </View>
-
         {/* Instructions */}
         <Text style={styles.instruction}>
           {isActive
             ? `Cycle ${cycleCount + 1}`
-            : 'Follow the circle to regulate your breathing'}
+            : 'Follow the circle to regulate your breathing. Focus on your breathing'}
         </Text>
 
         {/* Timer info */}
@@ -139,13 +220,13 @@ const BreathingGame = () => {
             <Text style={styles.timerLabel}>Inhale</Text>
             <Text style={styles.timerValue}>4s</Text>
           </View>
-          <View style={styles.timerItem}>
+             <View style={styles.timerItem}>
             <Text style={styles.timerLabel}>Hold</Text>
-            <Text style={styles.timerValue}>4s</Text>
+            <Text style={styles.timerValue}>2s</Text>
           </View>
           <View style={styles.timerItem}>
             <Text style={styles.timerLabel}>Exhale</Text>
-            <Text style={styles.timerValue}>4s</Text>
+            <Text style={styles.timerValue}>6s</Text>
           </View>
         </View>
 
@@ -172,14 +253,7 @@ const BreathingGame = () => {
               <Text style={styles.buttonText}>Stop</Text>
             </Button>
           )}
-          <Button
-            mode="outlined"
-            onPress={goBack}
-            style={styles.backButton}
-            textColor={Colors.primary}
-          >
-            <Text style={styles.backButtonText}>Back to Stats</Text>
-          </Button>
+  
         </View>
       </View>
     </View>
@@ -204,20 +278,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   mascotContainer: {
-    width: 100,
-    height: 100,
+    width: 250,
+    height: 250,
     marginBottom: 20,
   },
   mascot: {
     width: '100%',
     height: '100%',
-  },
-  circleContainer: {
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 30,
   },
   breathingCircle: {
     width: CIRCLE_SIZE * 0.7,
